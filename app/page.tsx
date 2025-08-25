@@ -58,8 +58,19 @@ function Content() {
           <Link href={`/workouts/${w._id}`} className="block">
             <div className="rounded-lg border border-slate-800 bg-slate-900 p-4 hover:bg-slate-800/50 transition-colors cursor-pointer">
               <div className="flex justify-between items-center">
-                <div className="font-semibold">
-                  {new Date(w.date).toLocaleDateString()}
+                <div className="flex flex-col">
+                  <div className="font-semibold">
+                    {new Date(w.date).toLocaleDateString()}
+                  </div>
+                  {w.items.length > 0 && (
+                    <div className="text-xs opacity-70 mt-0.5">
+                      {w.items.reduce(
+                        (total, item) => total + item.sets.length,
+                        0,
+                      )}{" "}
+                      total sets
+                    </div>
+                  )}
                 </div>
                 <WorkoutDropdown workoutId={w._id} />
               </div>

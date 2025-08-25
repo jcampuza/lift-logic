@@ -143,7 +143,7 @@ export default function WorkoutContent({
 
   return (
     <div className="pb-24 max-w-xl mx-auto">
-      <header className="sticky top-0 z-10 bg-slate-950 border-b border-slate-800 p-4 mb-4">
+      <header className="sticky top-0 z-[60] bg-slate-950 border-b border-slate-800 p-4 mb-4">
         <div className="flex items-center gap-4">
           <Link
             href="/"
