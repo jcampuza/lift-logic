@@ -59,7 +59,9 @@ export function DeleteUserExerciseDialog({
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete &quot;{exerciseName}&quot;?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Delete &quot;{exerciseName}&quot;?
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {checkUsage.isUsed ? (
               <>

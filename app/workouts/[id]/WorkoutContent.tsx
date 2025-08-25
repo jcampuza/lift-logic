@@ -120,7 +120,10 @@ export default function WorkoutContent({
   }, [notes, items, debouncedSync]);
 
   const handleExerciseSelected = (exercise: ExerciseRef) => {
-    setItems((prev) => [...prev, { exercise, notes: "", sets: [{ reps: 10, weight: 0 }] }]);
+    setItems((prev) => [
+      ...prev,
+      { exercise, notes: "", sets: [{ reps: 10, weight: 0 }] },
+    ]);
   };
 
   const retrySync = () => {
@@ -149,9 +152,9 @@ export default function WorkoutContent({
           </div>
         </div>
         <div className="flex gap-2">
-          <WorkoutDropdown 
-            workoutId={initialWorkout._id} 
-            onDeleted={() => router.replace("/")} 
+          <WorkoutDropdown
+            workoutId={initialWorkout._id}
+            onDeleted={() => router.replace("/")}
           />
         </div>
       </header>

@@ -15,11 +15,11 @@ interface ExerciseDropdownProps {
   showClearOption?: boolean;
 }
 
-export function ExerciseDropdown({ 
-  onDelete, 
-  onClearExercise, 
+export function ExerciseDropdown({
+  onDelete,
+  onClearExercise,
   align = "end",
-  showClearOption = false 
+  showClearOption = false,
 }: ExerciseDropdownProps) {
   return (
     <DropdownMenu>
@@ -35,7 +35,7 @@ export function ExerciseDropdown({
           <EllipsisVerticalIcon className="h-5 w-5" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
+      <DropdownMenuContent
         align={align}
         onClick={(e) => {
           e.preventDefault();
@@ -47,10 +47,7 @@ export function ExerciseDropdown({
             Clear exercise
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem
-          variant="destructive"
-          onSelect={onDelete}
-        >
+        <DropdownMenuItem variant="destructive" onSelect={onDelete}>
           Delete exercise
         </DropdownMenuItem>
       </DropdownMenuContent>

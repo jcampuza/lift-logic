@@ -92,7 +92,7 @@ export function AddExerciseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-md min-h-[400px] max-h-[80vh] flex flex-col"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >

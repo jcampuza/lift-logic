@@ -174,22 +174,25 @@ export const getWorkoutAnalytics = query({
 
     // Get all exercises referenced in the workout
     const globalExerciseIds = workout.items
-      .filter(item => item.exercise.kind === "global")
-      .map(item => item.exercise.id);
-    
+      .filter((item) => item.exercise.kind === "global")
+      .map((item) => item.exercise.id);
+
     const userExerciseIds = workout.items
-      .filter(item => item.exercise.kind === "user")
-      .map(item => item.exercise.id);
+      .filter((item) => item.exercise.kind === "user")
+      .map((item) => item.exercise.id);
 
     const [globalExercises, userExercises] = await Promise.all([
-      Promise.all(globalExerciseIds.map(id => ctx.db.get(id))),
-      Promise.all(userExerciseIds.map(id => ctx.db.get(id))),
+      Promise.all(globalExerciseIds.map((id) => ctx.db.get(id))),
+      Promise.all(userExerciseIds.map((id) => ctx.db.get(id))),
     ]);
 
     // Create exercise map
-    const exerciseMap = new Map<string, { name: string; primaryMuscle: string; secondaryMuscles: string[] }>();
-    
-    globalExercises.forEach(exercise => {
+    const exerciseMap = new Map<
+      string,
+      { name: string; primaryMuscle: string; secondaryMuscles: string[] }
+    >();
+
+    globalExercises.forEach((exercise) => {
       if (exercise) {
         exerciseMap.set(`global:${exercise._id}`, {
           name: exercise.name,
@@ -199,7 +202,7 @@ export const getWorkoutAnalytics = query({
       }
     });
 
-    userExercises.forEach(exercise => {
+    userExercises.forEach((exercise) => {
       if (exercise) {
         exerciseMap.set(`user:${exercise._id}`, {
           name: exercise.name,
@@ -211,35 +214,35 @@ export const getWorkoutAnalytics = query({
 
     // Calculate muscle group counts
     const muscleGroups: Record<string, number> = {
-      "Chest": 0,
-      "Shoulders": 0,
-      "Back": 0,
-      "Arms": 0,
-      "Legs": 0,
-      "Core": 0,
+      Chest: 0,
+      Shoulders: 0,
+      Back: 0,
+      Arms: 0,
+      Legs: 0,
+      Core: 0,
     };
 
     // Simple broad muscle group mapping (inline to avoid import issues in Convex)
     const getBroadGroup = (muscle: string): string | null => {
       const mapping: Record<string, string> = {
-        "Chest": "Chest",
+        Chest: "Chest",
         "Upper Chest": "Chest",
-        "Shoulders": "Shoulders",
+        Shoulders: "Shoulders",
         "Front Deltoids": "Shoulders",
-        "Rear Deltoids": "Shoulders", 
+        "Rear Deltoids": "Shoulders",
         "Lateral Deltoids": "Shoulders",
-        "Back": "Back",
-        "Lats": "Back",
-        "Traps": "Back",
+        Back: "Back",
+        Lats: "Back",
+        Traps: "Back",
         "Lower Back": "Back",
-        "Biceps": "Arms",
-        "Triceps": "Arms",
-        "Forearms": "Arms",
-        "Quads": "Legs",
-        "Hamstrings": "Legs",
-        "Glutes": "Legs",
-        "Calves": "Legs",
-        "Abs": "Core",
+        Biceps: "Arms",
+        Triceps: "Arms",
+        Forearms: "Arms",
+        Quads: "Legs",
+        Hamstrings: "Legs",
+        Glutes: "Legs",
+        Calves: "Legs",
+        Abs: "Core",
       };
       return mapping[muscle] || null;
     };
@@ -247,11 +250,11 @@ export const getWorkoutAnalytics = query({
     for (const item of workout.items) {
       const exerciseKey = `${item.exercise.kind}:${item.exercise.id}`;
       const exercise = exerciseMap.get(exerciseKey);
-      
+
       if (!exercise) continue;
 
       const setCount = item.sets.length;
-      
+
       // Count sets for primary muscle
       const primaryBroad = getBroadGroup(exercise.primaryMuscle);
       if (primaryBroad) {

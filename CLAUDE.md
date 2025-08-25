@@ -81,12 +81,14 @@ Core entities defined in `convex/schema.ts`:
 **Always use skeleton components for loading states instead of simple text messages.**
 
 Available skeleton components:
+
 - `WorkoutSkeleton` - Single workout item skeleton (matches main page workout cards)
 - `WorkoutListSkeleton` - List of workout skeletons with customizable count
 - `WorkoutDetailSkeleton` - Full workout detail page skeleton
 - `Skeleton` - Base skeleton component from `/components/ui/skeleton.tsx`
 
 **Usage Guidelines:**
+
 - Use `WorkoutListSkeleton` on main page when `workouts === undefined`
 - Use `WorkoutDetailSkeleton` on workout detail pages during loading states
 - Create page-specific skeleton components that match the actual content layout

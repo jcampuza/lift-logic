@@ -54,7 +54,7 @@ export function SecondaryMuscleGroupSelector({
   primaryMuscle,
 }: SecondaryMuscleGroupSelectorProps) {
   const availableOptions = muscleGroupOptions.filter(
-    (muscle) => muscle !== primaryMuscle
+    (muscle) => muscle !== primaryMuscle,
   );
 
   const handleToggle = (muscle: string, checked: boolean) => {
