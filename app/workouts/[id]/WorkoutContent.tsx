@@ -167,6 +167,7 @@ export default function WorkoutContent({
             <WorkoutDropdown
               workoutId={initialWorkout._id}
               onDeleted={() => router.replace("/")}
+              contentClassName="z-[70]"
             />
           </div>
         </div>

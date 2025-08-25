@@ -14,12 +14,14 @@ interface WorkoutDropdownProps {
   workoutId: Id<"workouts">;
   onDeleted?: () => void;
   align?: "start" | "center" | "end";
+  contentClassName?: string;
 }
 
 export function WorkoutDropdown({
   workoutId,
   onDeleted,
   align = "end",
+  contentClassName,
 }: WorkoutDropdownProps) {
   return (
     <DropdownMenu>
@@ -37,6 +39,7 @@ export function WorkoutDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align={align}
+        className={contentClassName}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
