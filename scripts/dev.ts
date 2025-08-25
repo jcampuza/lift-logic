@@ -10,24 +10,6 @@ const COLORS: Record<string, string> = {
 };
 const RESET = "\x1b[0m";
 
-// a TransformStream that splits incoming strings into lines
-function makeLineSplitter() {
-  let buffer = "";
-  return new TransformStream<string, string>({
-    transform(chunk, ctrl) {
-      buffer += chunk;
-      const parts = buffer.split("\n");
-      buffer = parts.pop() ?? "";
-      for (const line of parts) {
-        ctrl.enqueue(line);
-      }
-    },
-    flush(ctrl) {
-      if (buffer.length) ctrl.enqueue(buffer);
-    },
-  });
-}
-
 // given a Uint8Array stream, turn it into an async-iterable of lines
 async function* lines(
   stream: ReadableStream<Uint8Array>,
@@ -75,8 +57,12 @@ async function run() {
     { prefix: "next:stdout", stream: next.stdout },
     { prefix: "next:stderr", stream: next.stderr },
   ].filter(
-    (s): s is { prefix: string; stream: ReadableStream<Uint8Array> } =>
-      s.stream !== undefined,
+    (
+      s,
+    ): s is {
+      prefix: string;
+      stream: ReadableStream<Uint8Array<ArrayBuffer>>;
+    } => s.stream !== undefined,
   );
 
   const tasks = streams.map(({ prefix, stream }) => {
