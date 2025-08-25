@@ -8,6 +8,13 @@ import { v } from "convex/values";
 export default defineSchema({
   ...authTables,
 
+  // User preferences and settings
+  userPreferences: defineTable({
+    userId: v.id("users"),
+    weightUnit: v.union(v.literal("lbs"), v.literal("kg")),
+    // Future preferences can be added here
+  }).index("by_user", ["userId"]),
+
   // New: Global catalog of exercises available to everyone
   globalExercises: defineTable({
     name: v.string(),

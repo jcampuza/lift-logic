@@ -5,6 +5,9 @@ import { useMutation } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import AddExerciseDialog from "@/components/AddExerciseDialog";
+import AddExerciseFab from "@/components/AddExerciseFab";
+import MuscleGroupStats from "@/components/MuscleGroupStats";
 import WorkoutDropdown from "@/components/WorkoutDropdown";
 import useSingleFlight from "@/hooks/useSingleFlight";
 import useDebounce from "@/hooks/useDebounce";
@@ -43,7 +46,7 @@ export default function WorkoutContent({
   initialWorkout,
 }: WorkoutContentProps) {
   const router = useRouter();
-  const updateWorkout = useMutation(api.myFunctions.updateWorkout);
+  const updateWorkout = useMutation(api.workouts.updateWorkout);
 
   // Local state initialized once from server data
   const [notes, setNotes] = useState(initialWorkout.notes ?? "");
@@ -54,6 +57,7 @@ export default function WorkoutContent({
       sets: item.sets,
     })),
   );
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   // Sync status state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
@@ -115,8 +119,8 @@ export default function WorkoutContent({
     debouncedSync(notes, items);
   }, [notes, items, debouncedSync]);
 
-  const addEmptyExercise = () => {
-    setItems((prev) => [...prev, { exercise: null, notes: "", sets: [] }]);
+  const handleExerciseSelected = (exercise: ExerciseRef) => {
+    setItems((prev) => [...prev, { exercise, notes: "", sets: [{ reps: 10, weight: 0 }] }]);
   };
 
   const retrySync = () => {
@@ -152,6 +156,12 @@ export default function WorkoutContent({
         </div>
       </header>
 
+      {items.length > 0 && (
+        <div className="mb-6">
+          <MuscleGroupStats workoutId={initialWorkout._id} variant="full" />
+        </div>
+      )}
+
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">
           {items.map((item, idx) => (
@@ -167,12 +177,6 @@ export default function WorkoutContent({
               isEditing={true}
             />
           ))}
-          <button
-            className="mt-2 bg-slate-800 text-foreground rounded-md px-3 py-2"
-            onClick={addEmptyExercise}
-          >
-            Add exercise
-          </button>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -187,6 +191,14 @@ export default function WorkoutContent({
           />
         </div>
       </div>
+
+      <AddExerciseDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onExerciseSelected={handleExerciseSelected}
+      />
+
+      <AddExerciseFab onAddExercise={() => setShowAddDialog(true)} />
     </div>
   );
 }

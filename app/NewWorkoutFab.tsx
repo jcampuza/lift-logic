@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 
 export function NewWorkoutFab() {
   const router = useRouter();
-  const createWorkout = useMutation(api.myFunctions.createWorkout);
+  const createWorkout = useMutation(api.workouts.createWorkout);
   const [creating, setCreating] = useState(false);
   return (
     <button

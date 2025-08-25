@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CreateUserExercise from "@/components/CreateUserExercise";
+import { ManageUserExercises } from "@/components/ManageUserExercises";
+import UserPreferences from "@/components/UserPreferences";
 
 export default function SettingsPage() {
   const { isAuthenticated } = useConvexAuth();
@@ -43,12 +45,22 @@ export default function SettingsPage() {
       </header>
 
       <section className="space-y-4">
+        <h2 className="text-base font-semibold">Preferences</h2>
+        <UserPreferences />
+      </section>
+
+      <section className="mt-8 space-y-4">
         <h2 className="text-base font-semibold">Add a custom exercise</h2>
         <CreateUserExercise
           className=""
           onCreated={() => setStatus("Exercise added.")}
         />
         {status && <div className="text-xs opacity-70">{status}</div>}
+      </section>
+
+      <section className="mt-8 space-y-4">
+        <h2 className="text-base font-semibold">Manage custom exercises</h2>
+        <ManageUserExercises />
       </section>
 
       <section className="mt-10">

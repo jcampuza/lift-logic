@@ -3,6 +3,7 @@
 import { useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import CreateUserExercise from "@/components/CreateUserExercise";
+import ExerciseDropdown from "@/components/ExerciseDropdown";
 import { Autocomplete } from "@/components/ui/autocomplete";
 import {
   Dialog,
@@ -10,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { NumericInput } from "@/components/ui/numeric-input";
+import { XIcon } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -35,8 +38,10 @@ export function ExerciseEditor({
   isEditing?: boolean;
 }) {
   const [q, setQ] = useState("");
-  const rawResults = useQuery(api.myFunctions.searchExercises, { q });
+  const rawResults = useQuery(api.exercises.searchExercises, { q });
   const results = useMemo(() => rawResults ?? [], [rawResults]);
+  const preferences = useQuery(api.exercises.getUserPreferences);
+  const weightUnit = preferences?.weightUnit ?? "lbs";
 
   type ResultItem =
     | {
@@ -154,9 +159,7 @@ export function ExerciseEditor({
             }}
           />
           {isEditing && (
-            <button className="text-xs opacity-70 underline" onClick={onDelete}>
-              Remove
-            </button>
+            <ExerciseDropdown onDelete={onDelete} />
           )}
         </div>
       ) : (
@@ -165,54 +168,52 @@ export function ExerciseEditor({
             <div className="text-sm font-semibold">{selected.name}</div>
           </div>
           {isEditing && (
-            <button
-              className="text-xs opacity-70 underline"
-              onClick={() => onChange({ ...value, exercise: null })}
-            >
-              Remove
-            </button>
+            <ExerciseDropdown 
+              onDelete={onDelete}
+              onClearExercise={() => onChange({ ...value, exercise: null })}
+              showClearOption={true}
+            />
           )}
         </div>
       )}
 
       {selected && (
-        <div className="mt-3">
-          <div className="mt-2 flex flex-col gap-2">
+        <div className="mt-4">
+          <div className="border-t border-slate-800 my-4"></div>
+          <div className="flex flex-col gap-2">
             {value.sets.map((s, i) => (
               <div key={i} className="flex gap-2 items-center">
                 <span className="text-xs opacity-70 w-12">Set {i + 1}</span>
-                <input
-                  type="number"
+                <NumericInput
+                  value={s.weight}
+                  onChange={(value) => updateSetWeight(i, value)}
                   min={0}
-                  step={0.5}
-                  value={s.weight ?? 0}
-                  onChange={(e) =>
-                    updateSetWeight(
-                      i,
-                      e.target.value === ""
-                        ? undefined
-                        : Number(e.target.value),
-                    )
-                  }
+                  allowDecimals={true}
+                  allowEmpty={true}
+                  placeholder="0"
                   className="w-24 rounded-md border border-slate-800 bg-slate-950 p-2"
                   disabled={!isEditing}
                 />
-                <span className="text-xs opacity-70">lbs</span>
-                <input
-                  type="number"
-                  min={1}
+                <span className="text-xs opacity-70">{weightUnit}</span>
+                <NumericInput
                   value={s.reps}
-                  onChange={(e) => updateSetReps(i, Number(e.target.value))}
+                  onChange={(value) => updateSetReps(i, value || 1)}
+                  min={1}
+                  allowDecimals={false}
+                  allowEmpty={false}
+                  placeholder="1"
                   className="w-20 rounded-md border border-slate-800 bg-slate-950 p-2"
                   disabled={!isEditing}
                 />
                 <span className="text-xs opacity-70">reps</span>
                 {isEditing && (
                   <button
-                    className="ml-auto text-xs opacity-70 underline"
+                    className="ml-auto p-1 opacity-70 hover:opacity-100 transition-opacity"
                     onClick={() => removeSet(i)}
+                    title="Remove set"
                   >
-                    Remove set
+                    <XIcon className="size-4" />
+                    <span className="sr-only">Remove set</span>
                   </button>
                 )}
               </div>

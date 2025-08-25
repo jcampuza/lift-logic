@@ -3,7 +3,6 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
-// Workouts and exercises
 export const listWorkouts = query({
   args: {},
   returns: v.array(
@@ -72,93 +71,6 @@ export const getWorkout = query({
     if (workout.userId !== userId) throw new Error("Unauthorized");
 
     return workout;
-  },
-});
-
-export const searchExercises = query({
-  args: { q: v.optional(v.string()) },
-  returns: v.array(
-    v.union(
-      v.object({
-        kind: v.literal("global"),
-        _id: v.id("globalExercises"),
-        name: v.string(),
-        primaryMuscle: v.string(),
-      }),
-      v.object({
-        kind: v.literal("user"),
-        _id: v.id("userExercises"),
-        name: v.string(),
-        primaryMuscle: v.string(),
-      }),
-    ),
-  ),
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    const q = (args.q ?? "").trim();
-
-    if (q === "") {
-      const globals = await ctx.db
-        .query("globalExercises")
-        .order("asc")
-        .take(20);
-      const users = userId
-        ? await ctx.db
-            .query("userExercises")
-            .withIndex("by_user_and_name", (ix) => ix.eq("userId", userId))
-            .order("asc")
-            .take(20)
-        : [];
-
-      const mappedGlobals = globals.map((g) => ({
-        kind: "global" as const,
-        _id: g._id,
-        name: g.name,
-        primaryMuscle: g.primaryMuscle,
-      }));
-      const mappedUsers = users.map((u) => ({
-        kind: "user" as const,
-        _id: u._id,
-        name: u.name,
-        primaryMuscle: u.primaryMuscle,
-      }));
-
-      const combined = [...mappedGlobals, ...mappedUsers];
-      combined.sort((a, b) => a.name.localeCompare(b.name));
-      return combined.slice(0, 20);
-    }
-
-    const [globals, users] = await Promise.all([
-      ctx.db
-        .query("globalExercises")
-        .withSearchIndex("search_name", (s) => s.search("name", q))
-        .take(20),
-      userId
-        ? ctx.db
-            .query("userExercises")
-            .withSearchIndex("search_name", (s) =>
-              s.search("name", q).eq("userId", userId),
-            )
-            .take(20)
-        : Promise.resolve([]),
-    ]);
-
-    const mappedGlobals = globals.map((g) => ({
-      kind: "global" as const,
-      _id: g._id,
-      name: g.name,
-      primaryMuscle: g.primaryMuscle,
-    }));
-    const mappedUsers = users.map((u) => ({
-      kind: "user" as const,
-      _id: u._id,
-      name: u.name,
-      primaryMuscle: u.primaryMuscle,
-    }));
-
-    const combined = [...mappedGlobals, ...mappedUsers];
-    combined.sort((a, b) => a.name.localeCompare(b.name));
-    return combined.slice(0, 20);
   },
 });
 
@@ -246,64 +158,115 @@ export const deleteWorkout = mutation({
   },
 });
 
-export const createUserExercise = mutation({
-  args: {
-    name: v.string(),
-    primaryMuscle: v.string(),
-    secondaryMuscles: v.array(v.string()),
-    notes: v.optional(v.string()),
-    aliases: v.optional(v.array(v.string())),
-  },
-  returns: v.id("userExercises"),
+export const getWorkoutAnalytics = query({
+  args: { workoutId: v.id("workouts") },
+  returns: v.object({
+    muscleGroups: v.record(v.string(), v.number()),
+  }),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    const trimmedName = args.name.trim();
-    const trimmedPrimary = args.primaryMuscle.trim();
-    const secondary = args.secondaryMuscles
-      .map((s) => s.trim())
-      .filter((s) => s !== "");
-    const aliases = (args.aliases ?? [])
-      .map((a) => a.trim())
-      .filter((a) => a !== "");
-    const notes = args.notes?.trim() === "" ? undefined : args.notes?.trim();
-
-    const newId = await ctx.db.insert("userExercises", {
-      userId: userId as Id<"users">,
-      name: trimmedName,
-      primaryMuscle: trimmedPrimary,
-      secondaryMuscles: secondary,
-      notes,
-      aliases,
-    });
-    return newId;
-  },
-});
-
-export const seedGlobalExercises = mutation({
-  args: {},
-  returns: v.null(),
-  handler: async (ctx) => {
-    const existing = await ctx.db.query("globalExercises").take(1);
-    if (existing.length > 0) return null;
-    const presets = [
-      { name: "Barbell Back Squat", primaryMuscle: "Quads" },
-      { name: "Bench Press", primaryMuscle: "Chest" },
-      { name: "Deadlift", primaryMuscle: "Hamstrings" },
-      { name: "Overhead Press", primaryMuscle: "Shoulders" },
-      { name: "Barbell Row", primaryMuscle: "Back" },
-      { name: "Pull-up", primaryMuscle: "Back" },
-      { name: "Dumbbell Curl", primaryMuscle: "Biceps" },
-      { name: "Triceps Pushdown", primaryMuscle: "Triceps" },
-    ];
-    for (const p of presets) {
-      await ctx.db.insert("globalExercises", {
-        name: p.name,
-        primaryMuscle: p.primaryMuscle,
-        secondaryMuscles: [],
-      });
+    const workout = await ctx.db.get(args.workoutId);
+    if (!workout || workout.userId !== userId) {
+      throw new Error("Workout not found or unauthorized");
     }
-    return null;
+
+    // Get all exercises referenced in the workout
+    const globalExerciseIds = workout.items
+      .filter(item => item.exercise.kind === "global")
+      .map(item => item.exercise.id);
+    
+    const userExerciseIds = workout.items
+      .filter(item => item.exercise.kind === "user")
+      .map(item => item.exercise.id);
+
+    const [globalExercises, userExercises] = await Promise.all([
+      Promise.all(globalExerciseIds.map(id => ctx.db.get(id))),
+      Promise.all(userExerciseIds.map(id => ctx.db.get(id))),
+    ]);
+
+    // Create exercise map
+    const exerciseMap = new Map<string, { name: string; primaryMuscle: string; secondaryMuscles: string[] }>();
+    
+    globalExercises.forEach(exercise => {
+      if (exercise) {
+        exerciseMap.set(`global:${exercise._id}`, {
+          name: exercise.name,
+          primaryMuscle: exercise.primaryMuscle,
+          secondaryMuscles: exercise.secondaryMuscles,
+        });
+      }
+    });
+
+    userExercises.forEach(exercise => {
+      if (exercise) {
+        exerciseMap.set(`user:${exercise._id}`, {
+          name: exercise.name,
+          primaryMuscle: exercise.primaryMuscle,
+          secondaryMuscles: exercise.secondaryMuscles,
+        });
+      }
+    });
+
+    // Calculate muscle group counts
+    const muscleGroups: Record<string, number> = {
+      "Chest": 0,
+      "Shoulders": 0,
+      "Back": 0,
+      "Arms": 0,
+      "Legs": 0,
+      "Core": 0,
+    };
+
+    // Simple broad muscle group mapping (inline to avoid import issues in Convex)
+    const getBroadGroup = (muscle: string): string | null => {
+      const mapping: Record<string, string> = {
+        "Chest": "Chest",
+        "Upper Chest": "Chest",
+        "Shoulders": "Shoulders",
+        "Front Deltoids": "Shoulders",
+        "Rear Deltoids": "Shoulders", 
+        "Lateral Deltoids": "Shoulders",
+        "Back": "Back",
+        "Lats": "Back",
+        "Traps": "Back",
+        "Lower Back": "Back",
+        "Biceps": "Arms",
+        "Triceps": "Arms",
+        "Forearms": "Arms",
+        "Quads": "Legs",
+        "Hamstrings": "Legs",
+        "Glutes": "Legs",
+        "Calves": "Legs",
+        "Abs": "Core",
+      };
+      return mapping[muscle] || null;
+    };
+
+    for (const item of workout.items) {
+      const exerciseKey = `${item.exercise.kind}:${item.exercise.id}`;
+      const exercise = exerciseMap.get(exerciseKey);
+      
+      if (!exercise) continue;
+
+      const setCount = item.sets.length;
+      
+      // Count sets for primary muscle
+      const primaryBroad = getBroadGroup(exercise.primaryMuscle);
+      if (primaryBroad) {
+        muscleGroups[primaryBroad] += setCount;
+      }
+
+      // Count sets for secondary muscles (with reduced weight)
+      for (const secondaryMuscle of exercise.secondaryMuscles) {
+        const secondaryBroad = getBroadGroup(secondaryMuscle);
+        if (secondaryBroad && secondaryBroad !== primaryBroad) {
+          muscleGroups[secondaryBroad] += setCount * 0.5;
+        }
+      }
+    }
+
+    return { muscleGroups };
   },
 });

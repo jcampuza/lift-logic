@@ -16,7 +16,7 @@ export default function WorkoutDetailPage() {
     isPending,
     isError,
     isSuccess,
-  } = useQueryWithStatus(api.myFunctions.getWorkout, { id: workoutId });
+  } = useQueryWithStatus(api.workouts.getWorkout, { id: workoutId });
 
   if (isPending) {
     return <WorkoutDetailSkeleton />;

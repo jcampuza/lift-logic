@@ -25,7 +25,7 @@ export function DeleteWorkoutDialog({
   onDeleted?: () => void;
   children: React.ReactNode;
 }) {
-  const deleteWorkout = useMutation(api.myFunctions.deleteWorkout);
+  const deleteWorkout = useMutation(api.workouts.deleteWorkout);
   const [submitting, setSubmitting] = useState(false);
 
   return (

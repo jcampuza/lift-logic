@@ -1,10 +1,9 @@
 "use client";
 
-import {
-  Cog6ToothIcon,
-} from "@heroicons/react/24/outline";
+import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { useConvexAuth, useQuery } from "convex/react";
 import Link from "next/link";
+import MuscleGroupStats from "@/components/MuscleGroupStats";
 import WorkoutDropdown from "@/components/WorkoutDropdown";
 import { WorkoutListSkeleton } from "@/components/WorkoutSkeleton";
 import { api } from "../convex/_generated/api";
@@ -28,9 +27,9 @@ function SettingsLink() {
 }
 
 function Content() {
-  const workouts = useQuery(api.myFunctions.listWorkouts) ?? undefined;
+  const workouts = useQuery(api.workouts.listWorkouts) ?? undefined;
   const exercises =
-    useQuery(api.myFunctions.searchExercises, { q: undefined }) ?? [];
+    useQuery(api.exercises.searchExercises, { q: undefined }) ?? [];
   // deletion handled via DeleteWorkoutDialog component
   const globalIdToName = new Map<Id<"globalExercises">, string>();
   const userIdToName = new Map<Id<"userExercises">, string>();
@@ -64,30 +63,39 @@ function Content() {
                 </div>
                 <WorkoutDropdown workoutId={w._id} />
               </div>
-              <div className="mt-2 text-sm opacity-80">
-                {w.items.map((it, idx) => {
-                  const name =
-                    it.exercise.kind === "global"
-                      ? globalIdToName.get(it.exercise.id)
-                      : userIdToName.get(it.exercise.id);
-                  const resolved = name ?? "Exercise";
-                  const repsSummary = it.sets.map((s) => s.reps).join(", ");
-                  return (
-                    <div
-                      key={String(w._id) + idx}
-                      className="flex justify-between"
-                    >
-                      <span>{resolved}</span>
-                      <span className="opacity-70">
-                        {it.sets.length} set{it.sets.length === 1 ? "" : "s"} •
-                        [{repsSummary}]
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              {w.items.length > 0 ? (
+                <div className="mt-2 text-sm opacity-80">
+                  {w.items.map((it, idx) => {
+                    const name =
+                      it.exercise.kind === "global"
+                        ? globalIdToName.get(it.exercise.id)
+                        : userIdToName.get(it.exercise.id);
+                    const resolved = name ?? "Exercise";
+                    return (
+                      <div
+                        key={String(w._id) + idx}
+                        className="flex justify-between"
+                      >
+                        <span>{resolved}</span>
+                        <span className="opacity-70">
+                          {it.sets.length} set{it.sets.length === 1 ? "" : "s"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-2 text-sm opacity-60 italic">
+                  No exercises yet. Time to get to work! 💪
+                </div>
+              )}
               {w.notes && (
                 <div className="mt-2 text-xs italic opacity-70">{w.notes}</div>
+              )}
+              {w.items.length > 0 && (
+                <div className="mt-3">
+                  <MuscleGroupStats workoutId={w._id} variant="compact" />
+                </div>
               )}
             </div>
           </Link>
@@ -101,7 +109,7 @@ export default function Home() {
   return (
     <>
       <header className="sticky top-0 z-10 bg-background p-4 border-b border-slate-800 flex flex-row justify-between items-center">
-        Lift Logic
+        Lift PR&apos;s
         <SettingsLink />
       </header>
       <main className="p-4 pb-24 max-w-xl mx-auto w-full">

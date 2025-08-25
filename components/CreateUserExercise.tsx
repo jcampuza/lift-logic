@@ -4,6 +4,10 @@ import { useMutation } from "convex/react";
 import { useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import {
+  PrimaryMuscleGroupSelector,
+  SecondaryMuscleGroupSelector,
+} from "./MuscleGroupSelector";
 
 export type CreateExerciseResult = Id<"userExercises">;
 
@@ -16,11 +20,11 @@ export function CreateUserExercise({
   onCreated?: (id: CreateExerciseResult, name: string) => void;
   className?: string;
 }) {
-  const createUserExercise = useMutation(api.myFunctions.createUserExercise);
+  const createUserExercise = useMutation(api.exercises.createUserExercise);
 
   const [name, setName] = useState(defaultName);
   const [primary, setPrimary] = useState("");
-  const [secondary, setSecondary] = useState("");
+  const [secondary, setSecondary] = useState<string[]>([]);
   const [aliases, setAliases] = useState("");
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<string | null>(null);
@@ -40,20 +44,14 @@ export function CreateUserExercise({
         </div>
         <div className="grid gap-1.5">
           <label className="text-sm opacity-80">Primary muscle</label>
-          <input
-            value={primary}
-            onChange={(e) => setPrimary(e.target.value)}
-            placeholder="e.g. Quads"
-            className="w-full rounded-md border border-slate-800 bg-slate-950 p-2"
-          />
+          <PrimaryMuscleGroupSelector value={primary} onChange={setPrimary} />
         </div>
         <div className="grid gap-1.5">
           <label className="text-sm opacity-80">Secondary muscles</label>
-          <input
+          <SecondaryMuscleGroupSelector
             value={secondary}
-            onChange={(e) => setSecondary(e.target.value)}
-            placeholder="Comma-separated (e.g. Glutes, Hamstrings)"
-            className="w-full rounded-md border border-slate-800 bg-slate-950 p-2"
+            onChange={setSecondary}
+            primaryMuscle={primary}
           />
         </div>
         <div className="grid gap-1.5">
@@ -81,25 +79,20 @@ export function CreateUserExercise({
             disabled={submitting}
             onClick={async () => {
               const trimmedName = name.trim();
-              const trimmedPrimary = primary.trim();
-              if (trimmedName === "" || trimmedPrimary === "") {
+              if (trimmedName === "" || primary === "") {
                 setStatus("Please provide name and primary muscle.");
                 return;
               }
               setSubmitting(true);
               try {
-                const secondaryArr = secondary
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter((s) => s !== "");
                 const aliasesArr = aliases
                   .split(",")
                   .map((s) => s.trim())
                   .filter((s) => s !== "");
                 const id = await createUserExercise({
                   name: trimmedName,
-                  primaryMuscle: trimmedPrimary,
-                  secondaryMuscles: secondaryArr,
+                  primaryMuscle: primary,
+                  secondaryMuscles: secondary,
                   aliases: aliasesArr.length ? aliasesArr : undefined,
                   notes: notes.trim() === "" ? undefined : notes.trim(),
                 });
@@ -107,7 +100,7 @@ export function CreateUserExercise({
                 onCreated?.(id, trimmedName);
                 setName("");
                 setPrimary("");
-                setSecondary("");
+                setSecondary([]);
                 setAliases("");
                 setNotes("");
               } finally {
