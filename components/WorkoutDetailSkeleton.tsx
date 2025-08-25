@@ -28,18 +28,24 @@ export function WorkoutDetailSkeleton() {
         {/* Exercise items skeleton */}
         <div className="flex flex-col gap-3">
           {Array.from({ length: 2 }, (_, i) => (
-            <div key={i} className="rounded-lg border border-slate-800 bg-slate-900 p-4">
+            <div
+              key={i}
+              className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+            >
               <div className="flex items-center justify-between mb-3">
                 <Skeleton className="h-5 w-24" /> {/* Exercise name */}
-                <Skeleton className="h-5 w-5 rounded-md" /> {/* Delete button */}
+                <Skeleton className="h-5 w-5 rounded-md" />{" "}
+                {/* Delete button */}
               </div>
               <div className="space-y-2">
-                <Skeleton className="h-4 w-full" /> {/* Exercise search/input */}
+                <Skeleton className="h-4 w-full" />{" "}
+                {/* Exercise search/input */}
                 <Skeleton className="h-4 w-3/4" /> {/* Sets info */}
               </div>
             </div>
           ))}
-          <Skeleton className="h-10 w-full rounded-md" /> {/* Add exercise button */}
+          <Skeleton className="h-10 w-full rounded-md" />{" "}
+          {/* Add exercise button */}
         </div>
 
         {/* Notes section skeleton */}

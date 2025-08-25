@@ -80,7 +80,12 @@ export function ExerciseEditor({
     : null;
 
   const addSet = () => {
-    onChange({ ...value, sets: [...value.sets, { reps: 10, weight: 0 }] });
+    const lastSet = value.sets[value.sets.length - 1];
+    const newSet = {
+      reps: lastSet?.reps ?? 10,
+      weight: lastSet?.weight ?? 0,
+    };
+    onChange({ ...value, sets: [...value.sets, newSet] });
   };
 
   const updateSetReps = (i: number, reps: number) => {
@@ -157,9 +162,7 @@ export function ExerciseEditor({
               );
             }}
           />
-          {isEditing && (
-            <ExerciseDropdown onDelete={onDelete} />
-          )}
+          {isEditing && <ExerciseDropdown onDelete={onDelete} />}
         </div>
       ) : (
         <div className="flex gap-2 items-center">
@@ -167,7 +170,7 @@ export function ExerciseEditor({
             <div className="text-sm font-semibold">{selected.name}</div>
           </div>
           {isEditing && (
-            <ExerciseDropdown 
+            <ExerciseDropdown
               onDelete={onDelete}
               onClearExercise={() => onChange({ ...value, exercise: null })}
               showClearOption={true}

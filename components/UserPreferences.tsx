@@ -61,11 +61,13 @@ export function UserPreferences() {
           </button>
         </div>
       </div>
-      
+
       {status && (
-        <div className={`text-xs ${
-          status.includes("Failed") ? "text-red-400" : "opacity-70"
-        }`}>
+        <div
+          className={`text-xs ${
+            status.includes("Failed") ? "text-red-400" : "opacity-70"
+          }`}
+        >
           {status}
         </div>
       )}

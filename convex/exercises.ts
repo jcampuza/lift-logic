@@ -194,7 +194,8 @@ export const checkExerciseUsage = query({
     let workoutCount = 0;
     for (const workout of workouts) {
       const hasExercise = workout.items.some(
-        (item) => item.exercise.kind === "user" && item.exercise.id === args.exerciseId
+        (item) =>
+          item.exercise.kind === "user" && item.exercise.id === args.exerciseId,
       );
       if (hasExercise) workoutCount++;
     }
@@ -229,9 +230,13 @@ export const deleteUserExercise = mutation({
     for (const workout of workouts) {
       const originalItemsLength = workout.items.length;
       const filteredItems = workout.items.filter(
-        (item) => !(item.exercise.kind === "user" && item.exercise.id === args.exerciseId)
+        (item) =>
+          !(
+            item.exercise.kind === "user" &&
+            item.exercise.id === args.exerciseId
+          ),
       );
-      
+
       // Only update if items were removed
       if (filteredItems.length !== originalItemsLength) {
         await ctx.db.patch(workout._id, {

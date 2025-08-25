@@ -16,7 +16,11 @@ interface WorkoutDropdownProps {
   align?: "start" | "center" | "end";
 }
 
-export function WorkoutDropdown({ workoutId, onDeleted, align = "end" }: WorkoutDropdownProps) {
+export function WorkoutDropdown({
+  workoutId,
+  onDeleted,
+  align = "end",
+}: WorkoutDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,7 +35,7 @@ export function WorkoutDropdown({ workoutId, onDeleted, align = "end" }: Workout
           <EllipsisVerticalIcon className="h-5 w-5" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
+      <DropdownMenuContent
         align={align}
         onClick={(e) => {
           e.preventDefault();

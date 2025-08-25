@@ -2,7 +2,7 @@
 export const MUSCLE_GROUPS = {
   // Primary muscle groups
   CHEST: "Chest",
-  SHOULDERS: "Shoulders", 
+  SHOULDERS: "Shoulders",
   BACK: "Back",
   BICEPS: "Biceps",
   TRICEPS: "Triceps",
@@ -10,7 +10,7 @@ export const MUSCLE_GROUPS = {
   HAMSTRINGS: "Hamstrings",
   GLUTES: "Glutes",
   CALVES: "Calves",
-  
+
   // Secondary/supporting muscles
   FRONT_DELTOIDS: "Front Deltoids",
   REAR_DELTOIDS: "Rear Deltoids",

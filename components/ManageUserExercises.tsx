@@ -8,7 +8,8 @@ import { api } from "../convex/_generated/api";
 export function ManageUserExercises() {
   const userExercises = useQuery(api.exercises.searchExercises, { q: "" });
 
-  const filteredUserExercises = userExercises?.filter((ex) => ex.kind === "user") || [];
+  const filteredUserExercises =
+    userExercises?.filter((ex) => ex.kind === "user") || [];
 
   if (filteredUserExercises.length === 0) {
     return (

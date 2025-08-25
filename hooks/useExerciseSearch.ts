@@ -4,7 +4,7 @@ import Fuse from "fuse.js";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export type ExerciseSearchResult = 
+export type ExerciseSearchResult =
   | {
       kind: "global";
       _id: Id<"globalExercises">;
@@ -26,7 +26,7 @@ export function useExerciseSearch() {
   // Configure Fuse.js for fuzzy search
   const fuse = useMemo(() => {
     if (allExercises.length === 0) return null;
-    
+
     return new Fuse(allExercises, {
       keys: [
         { name: "name", weight: 0.7 },
@@ -41,7 +41,7 @@ export function useExerciseSearch() {
   // Filter exercises based on query
   const filteredExercises = useMemo(() => {
     if (!fuse) return [];
-    
+
     if (query.trim() === "") {
       // Return first 20 exercises when no query
       return allExercises.slice(0, 20);
@@ -49,7 +49,7 @@ export function useExerciseSearch() {
 
     // Use Fuse.js for fuzzy search
     const fuseResults = fuse.search(query.trim());
-    return fuseResults.map(result => result.item);
+    return fuseResults.map((result) => result.item);
   }, [fuse, query, allExercises]);
 
   return {
