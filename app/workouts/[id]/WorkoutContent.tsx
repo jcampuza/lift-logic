@@ -193,6 +193,7 @@ export default function WorkoutContent({
                   setItems((prev) => prev.filter((_, i) => i !== idx));
                 }}
                 isEditing={true}
+                currentWorkoutId={initialWorkout._id}
               />
             ))}
           </div>

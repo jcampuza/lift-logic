@@ -4,7 +4,13 @@ import { useQuery } from "convex/react";
 import { useState } from "react";
 import ExerciseDropdown from "@/components/ExerciseDropdown";
 import { NumericInput } from "@/components/ui/numeric-input";
-import { XIcon, ChevronDownIcon, ChevronUpIcon, EditIcon } from "lucide-react";
+import {
+  XIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  EditIcon,
+  ClockIcon,
+} from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -29,14 +35,22 @@ export function ExerciseEditor({
   onChange,
   onDelete,
   isEditing = true,
+  currentWorkoutId,
 }: {
   value: WorkoutItemDraft;
   onChange: (v: WorkoutItemDraft) => void;
   onDelete: () => void;
   isEditing?: boolean;
+  currentWorkoutId?: Id<"workouts">;
 }) {
   const preferences = useQuery(api.exercises.getUserPreferences);
   const weightUnit = preferences?.weightUnit ?? "lbs";
+
+  // Get last performance data for this exercise, excluding current workout
+  const lastPerformance = useQuery(api.workouts.getLastExercisePerformance, {
+    exercise: value.exercise,
+    excludeWorkoutId: currentWorkoutId,
+  });
 
   // Start expanded by default
   const [isExpanded, setIsExpanded] = useState(true);
@@ -139,6 +153,30 @@ export function ExerciseEditor({
       {isExpanded && (
         <div className="mt-4">
           <div className="border-t border-slate-800 my-4"></div>
+
+          {/* Last performance indicator */}
+          {lastPerformance && (
+            <div className="mb-3 p-3 bg-slate-800/30 rounded-md border border-slate-700/50">
+              <div className="flex items-center gap-2 text-sm">
+                <ClockIcon className="size-4 opacity-60" />
+                <span className="opacity-80">
+                  Last time:{" "}
+                  <span className="font-medium">
+                    {lastPerformance.topSet.weight}
+                    {weightUnit} × {lastPerformance.topSet.reps} reps
+                  </span>
+                </span>
+                <span className="opacity-60 text-xs">
+                  (
+                  {lastPerformance.daysAgo === 0
+                    ? "today"
+                    : `${lastPerformance.daysAgo} day${lastPerformance.daysAgo === 1 ? "" : "s"} ago`}
+                  )
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col gap-2">
             {value.sets.map((s, i) => (
               <div key={i} className="flex gap-2 items-center">

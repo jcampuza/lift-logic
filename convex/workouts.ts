@@ -200,6 +200,112 @@ export const deleteWorkout = mutation({
   },
 });
 
+export const getLastExercisePerformance = query({
+  args: {
+    exercise: v.union(
+      v.object({ kind: v.literal("global"), id: v.id("globalExercises") }),
+      v.object({ kind: v.literal("user"), id: v.id("userExercises") }),
+    ),
+    excludeWorkoutId: v.optional(v.id("workouts")),
+  },
+  returns: v.union(
+    v.object({
+      workoutDate: v.number(),
+      exerciseName: v.string(),
+      topSet: v.object({
+        weight: v.number(),
+        reps: v.number(),
+      }),
+      daysAgo: v.number(),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    // Get the reference date - either from the excluded workout or current time
+    let referenceDate = Date.now();
+    if (args.excludeWorkoutId) {
+      const excludedWorkout = await ctx.db.get(args.excludeWorkoutId);
+      if (excludedWorkout && excludedWorkout.userId === userId) {
+        referenceDate = excludedWorkout.date;
+      }
+    }
+
+    // Calculate cutoff date (7 days before reference date)
+    const sevenDaysAgo = referenceDate - 7 * 24 * 60 * 60 * 1000;
+
+    // Query recent workouts (last 7 days from reference date), ordered by date desc (most recent first)
+    const recentWorkouts = await ctx.db
+      .query("workouts")
+      .withIndex("by_user_and_date", (q) =>
+        q
+          .eq("userId", userId)
+          .gte("date", sevenDaysAgo)
+          .lt("date", referenceDate),
+      )
+      .order("desc")
+      .collect();
+
+    // Find the most recent workout containing the target exercise
+    for (const workout of recentWorkouts) {
+      // Skip the excluded workout if specified
+      if (args.excludeWorkoutId && workout._id === args.excludeWorkoutId) {
+        continue;
+      }
+
+      const exerciseItem = workout.items.find(
+        (item) =>
+          item.exercise.kind === args.exercise.kind &&
+          item.exercise.id === args.exercise.id,
+      );
+
+      if (exerciseItem && exerciseItem.sets.length > 0) {
+        // Find the top set (highest weight)
+        let topSet = null;
+        let maxWeight = -1;
+
+        for (const set of exerciseItem.sets) {
+          if (set.weight !== undefined && set.weight > maxWeight) {
+            maxWeight = set.weight;
+            topSet = set;
+          }
+        }
+
+        if (topSet && topSet.weight !== undefined) {
+          // Get exercise name
+          let exerciseName = "Unknown Exercise";
+          if (args.exercise.kind === "global") {
+            const globalExercise = await ctx.db.get(args.exercise.id);
+            if (globalExercise) exerciseName = globalExercise.name;
+          } else {
+            const userExercise = await ctx.db.get(args.exercise.id);
+            if (userExercise) exerciseName = userExercise.name;
+          }
+
+          const daysAgo = Math.floor(
+            (referenceDate - workout.date) / (24 * 60 * 60 * 1000),
+          );
+
+          return {
+            workoutDate: workout.date,
+            exerciseName,
+            topSet: {
+              weight: topSet.weight,
+              reps: topSet.reps,
+            },
+            daysAgo,
+          };
+        }
+      }
+    }
+
+    // No recent performance found
+    return null;
+  },
+});
+
 export const getWorkoutAnalytics = query({
   args: { workoutId: v.id("workouts") },
   returns: v.object({
