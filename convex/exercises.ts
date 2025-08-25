@@ -91,6 +91,56 @@ export const searchExercises = query({
   },
 });
 
+export const getAllExercises = query({
+  returns: v.array(
+    v.union(
+      v.object({
+        kind: v.literal("global"),
+        _id: v.id("globalExercises"),
+        name: v.string(),
+        primaryMuscle: v.string(),
+      }),
+      v.object({
+        kind: v.literal("user"),
+        _id: v.id("userExercises"),
+        name: v.string(),
+        primaryMuscle: v.string(),
+      }),
+    ),
+  ),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+
+    const [globals, users] = await Promise.all([
+      ctx.db.query("globalExercises").order("asc").collect(),
+      userId
+        ? ctx.db
+            .query("userExercises")
+            .withIndex("by_user_and_name", (ix) => ix.eq("userId", userId))
+            .order("asc")
+            .collect()
+        : Promise.resolve([]),
+    ]);
+
+    const mappedGlobals = globals.map((g) => ({
+      kind: "global" as const,
+      _id: g._id,
+      name: g.name,
+      primaryMuscle: g.primaryMuscle,
+    }));
+    const mappedUsers = users.map((u) => ({
+      kind: "user" as const,
+      _id: u._id,
+      name: u.name,
+      primaryMuscle: u.primaryMuscle,
+    }));
+
+    const combined = [...mappedGlobals, ...mappedUsers];
+    combined.sort((a, b) => a.name.localeCompare(b.name));
+    return combined;
+  },
+});
+
 export const createUserExercise = mutation({
   args: {
     name: v.string(),

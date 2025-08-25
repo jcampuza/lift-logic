@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import CreateUserExercise from "@/components/CreateUserExercise";
 import { Autocomplete } from "@/components/ui/autocomplete";
@@ -12,7 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { api } from "@/convex/_generated/api";
+import { useExerciseSearch } from "@/hooks/useExerciseSearch";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export type ExerciseRef =
@@ -30,13 +29,11 @@ export function AddExerciseDialog({
   onOpenChange,
   onExerciseSelected,
 }: AddExerciseDialogProps) {
-  const [q, setQ] = useState("");
   const [selectedExercise, setSelectedExercise] = useState<ExerciseRef | null>(
     null,
   );
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const rawResults = useQuery(api.exercises.searchExercises, { q });
-  const results = useMemo(() => rawResults ?? [], [rawResults]);
+  const { query: q, setQuery: setQ, exercises: results } = useExerciseSearch();
 
   type ResultItem =
     | {
@@ -95,18 +92,23 @@ export function AddExerciseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent 
+        className="sm:max-w-md min-h-[400px] max-h-[80vh] flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Add Exercise</DialogTitle>
         </DialogHeader>
 
         {!showCreateForm ? (
           <>
-            <div className="space-y-4">
+            <div className="flex-1 flex flex-col space-y-4">
               <Autocomplete
                 inputValue={q}
                 onInputValueChange={setQ}
                 items={items}
+                autoFocus={false}
+                listClassName="min-h-[200px] max-h-[200px]"
                 getKey={(r) =>
                   r.kind === "add_new"
                     ? `add:${r.name}`
@@ -161,7 +163,7 @@ export function AddExerciseDialog({
               )}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="mt-auto">
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
@@ -175,12 +177,14 @@ export function AddExerciseDialog({
             </DialogFooter>
           </>
         ) : (
-          <div className="space-y-4">
-            <CreateUserExercise
-              defaultName={q}
-              onCreated={handleExerciseCreated}
-            />
-            <DialogFooter>
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1">
+              <CreateUserExercise
+                defaultName={q}
+                onCreated={handleExerciseCreated}
+              />
+            </div>
+            <DialogFooter className="mt-auto">
               <Button
                 variant="outline"
                 onClick={() => setShowCreateForm(false)}

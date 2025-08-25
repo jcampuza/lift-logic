@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import CreateUserExercise from "@/components/CreateUserExercise";
 import ExerciseDropdown from "@/components/ExerciseDropdown";
 import { Autocomplete } from "@/components/ui/autocomplete";
+import { useExerciseSearch } from "@/hooks/useExerciseSearch";
 import {
   Dialog,
   DialogContent,
@@ -37,9 +38,7 @@ export function ExerciseEditor({
   onDelete: () => void;
   isEditing?: boolean;
 }) {
-  const [q, setQ] = useState("");
-  const rawResults = useQuery(api.exercises.searchExercises, { q });
-  const results = useMemo(() => rawResults ?? [], [rawResults]);
+  const { query: q, setQuery: setQ, exercises: results } = useExerciseSearch();
   const preferences = useQuery(api.exercises.getUserPreferences);
   const weightUnit = preferences?.weightUnit ?? "lbs";
 

@@ -16,6 +16,7 @@ type AutocompleteProps<T> = {
   listClassName?: string;
   emptyMessage?: string;
   disabled?: boolean;
+  autoFocus?: boolean;
   renderItem?: (
     item: T,
     state: { selected: boolean; highlighted: boolean },
@@ -36,6 +37,7 @@ export function Autocomplete<T>(props: AutocompleteProps<T>) {
     listClassName,
     emptyMessage = "No results",
     disabled,
+    autoFocus = false,
     renderItem,
   } = props;
 
@@ -99,6 +101,7 @@ export function Autocomplete<T>(props: AutocompleteProps<T>) {
         onBlur={onInputBlur}
         onKeyDown={handleKeyDown}
         disabled={disabled}
+        autoFocus={autoFocus}
         className={cn(
           "w-full rounded-md border border-slate-800 bg-slate-950 p-2 outline-none",
           inputClassName,
