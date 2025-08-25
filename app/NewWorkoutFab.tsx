@@ -20,7 +20,7 @@ export function NewWorkoutFab() {
             notes: undefined,
             items: [],
           });
-          router.replace(`/workouts/${id}`);
+          router.push(`/workouts/${id}`);
         } finally {
           setCreating(false);
         }
