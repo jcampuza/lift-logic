@@ -21,7 +21,10 @@ export type ExerciseRef =
 interface AddExerciseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onExerciseSelected: (exercise: ExerciseRef) => void;
+  onExerciseSelected: (
+    exercise: ExerciseRef,
+    exerciseData: { name: string; primaryMuscle?: string },
+  ) => void;
 }
 
 export function AddExerciseDialog({
@@ -29,9 +32,6 @@ export function AddExerciseDialog({
   onOpenChange,
   onExerciseSelected,
 }: AddExerciseDialogProps) {
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseRef | null>(
-    null,
-  );
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { query: q, setQuery: setQ, exercises: results } = useExerciseSearch();
 
@@ -63,30 +63,15 @@ export function AddExerciseDialog({
     return base;
   }, [results, q]);
 
-  const selectedItem = selectedExercise
-    ? (results.find(
-        (r) =>
-          r.kind === selectedExercise?.kind && r._id === selectedExercise?.id,
-      ) ?? null)
-    : null;
-
   const handleClose = () => {
     setQ("");
-    setSelectedExercise(null);
     setShowCreateForm(false);
     onOpenChange(false);
   };
 
-  const handleAddExercise = () => {
-    if (selectedExercise) {
-      onExerciseSelected(selectedExercise);
-      handleClose();
-    }
-  };
-
-  const handleExerciseCreated = (id: Id<"userExercises">) => {
+  const handleExerciseCreated = (id: Id<"userExercises">, name: string) => {
     const newExercise: ExerciseRef = { kind: "user", id };
-    onExerciseSelected(newExercise);
+    onExerciseSelected(newExercise, { name });
     handleClose();
   };
 
@@ -123,11 +108,15 @@ export function AddExerciseDialog({
                     return;
                   }
                   const it = r as ResultItem;
-                  setSelectedExercise(
+                  const exerciseRef: ExerciseRef =
                     it.kind === "global"
                       ? { kind: "global", id: it._id }
-                      : { kind: "user", id: it._id },
-                  );
+                      : { kind: "user", id: it._id };
+                  onExerciseSelected(exerciseRef, {
+                    name: it.name,
+                    primaryMuscle: it.primaryMuscle,
+                  });
+                  handleClose();
                 }}
                 placeholder="Search exercises..."
                 renderItem={(r) => {
@@ -141,10 +130,10 @@ export function AddExerciseDialog({
                   }
                   const it = r as ResultItem;
                   return (
-                    <div className="flex items-center justify-between">
-                      <span>{it.name}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="flex-1">{it.name}</span>
                       {it.primaryMuscle && (
-                        <span className="text-xs opacity-60">
+                        <span className="text-xs opacity-60 flex-shrink-0">
                           {it.primaryMuscle}
                         </span>
                       )}
@@ -152,27 +141,11 @@ export function AddExerciseDialog({
                   );
                 }}
               />
-
-              {selectedItem && (
-                <div className="p-3 bg-slate-800/50 rounded-md">
-                  <div className="text-sm font-medium">{selectedItem.name}</div>
-                  <div className="text-xs opacity-70">
-                    {selectedItem.primaryMuscle}
-                  </div>
-                </div>
-              )}
             </div>
 
             <DialogFooter className="mt-auto">
               <Button variant="outline" onClick={handleClose}>
                 Cancel
-              </Button>
-              <Button
-                onClick={handleAddExercise}
-                disabled={!selectedExercise}
-                variant="default"
-              >
-                Add Exercise
               </Button>
             </DialogFooter>
           </>

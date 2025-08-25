@@ -291,6 +291,80 @@ export const getUserPreferences = query({
   },
 });
 
+export const updateUserExercise = mutation({
+  args: {
+    exerciseId: v.id("userExercises"),
+    name: v.string(),
+    primaryMuscle: v.string(),
+    secondaryMuscles: v.array(v.string()),
+    notes: v.optional(v.string()),
+    aliases: v.optional(v.array(v.string())),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    // Verify ownership
+    const exercise = await ctx.db.get(args.exerciseId);
+    if (!exercise || exercise.userId !== userId) {
+      throw new Error("Exercise not found or unauthorized");
+    }
+
+    const trimmedName = args.name.trim();
+    const trimmedPrimary = args.primaryMuscle.trim();
+    const secondary = args.secondaryMuscles
+      .map((s) => s.trim())
+      .filter((s) => s !== "");
+    const aliases = (args.aliases ?? [])
+      .map((a) => a.trim())
+      .filter((a) => a !== "");
+    const notes = args.notes?.trim() === "" ? undefined : args.notes?.trim();
+
+    await ctx.db.patch(args.exerciseId, {
+      name: trimmedName,
+      primaryMuscle: trimmedPrimary,
+      secondaryMuscles: secondary,
+      notes,
+      aliases,
+    });
+    return null;
+  },
+});
+
+export const getUserExercise = query({
+  args: { exerciseId: v.id("userExercises") },
+  returns: v.union(
+    v.object({
+      _id: v.id("userExercises"),
+      name: v.string(),
+      primaryMuscle: v.string(),
+      secondaryMuscles: v.array(v.string()),
+      notes: v.optional(v.string()),
+      aliases: v.optional(v.array(v.string())),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const exercise = await ctx.db.get(args.exerciseId);
+    if (!exercise || exercise.userId !== userId) {
+      return null;
+    }
+
+    return {
+      _id: exercise._id,
+      name: exercise.name,
+      primaryMuscle: exercise.primaryMuscle,
+      secondaryMuscles: exercise.secondaryMuscles,
+      notes: exercise.notes,
+      aliases: exercise.aliases,
+    };
+  },
+});
+
 export const updateUserPreferences = mutation({
   args: {
     weightUnit: v.union(v.literal("lbs"), v.literal("kg")),

@@ -137,7 +137,7 @@ export function Autocomplete<T>(props: AutocompleteProps<T>) {
                 role="option"
                 aria-selected={highlighted}
                 className={cn(
-                  "w-full text-left px-3 py-2 text-sm cursor-pointer hover:bg-slate-800 focus:bg-slate-800 focus:outline-none",
+                  "w-full text-left px-3 py-3 text-sm cursor-pointer hover:bg-slate-800 focus:bg-slate-800 focus:outline-none min-h-[48px] flex items-center",
                   highlighted && "bg-slate-800",
                 )}
                 onMouseEnter={() => setHighlightedIndex(idx)}

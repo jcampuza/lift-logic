@@ -44,7 +44,7 @@ export function ExerciseDropdown({
       >
         {showClearOption && onClearExercise && (
           <DropdownMenuItem onSelect={onClearExercise}>
-            Clear exercise
+            Clear sets & notes
           </DropdownMenuItem>
         )}
         <DropdownMenuItem variant="destructive" onSelect={onDelete}>

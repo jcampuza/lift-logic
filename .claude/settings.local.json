@@ -3,7 +3,9 @@
     "allow": [
       "Bash(bun run lint:*)",
       "WebFetch(domain:docs.convex.dev)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(bun run:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

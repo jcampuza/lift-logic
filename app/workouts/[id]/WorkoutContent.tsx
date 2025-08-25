@@ -27,6 +27,10 @@ type WorkoutData = {
   notes?: string;
   items: Array<{
     exercise: ExerciseRef;
+    exerciseData: {
+      name: string;
+      primaryMuscle?: string;
+    };
     notes?: string;
     sets: Array<{ reps: number; weight?: number }>;
   }>;
@@ -53,6 +57,7 @@ export default function WorkoutContent({
   const [items, setItems] = useState<Array<LocalWorkoutItemDraft>>(
     initialWorkout.items.map((item) => ({
       exercise: item.exercise,
+      exerciseData: item.exerciseData,
       notes: item.notes ?? "",
       sets: item.sets,
     })),
@@ -119,10 +124,13 @@ export default function WorkoutContent({
     debouncedSync(notes, items);
   }, [notes, items, debouncedSync]);
 
-  const handleExerciseSelected = (exercise: ExerciseRef) => {
+  const handleExerciseSelected = (
+    exercise: ExerciseRef,
+    exerciseData: { name: string; primaryMuscle?: string },
+  ) => {
     setItems((prev) => [
       ...prev,
-      { exercise, notes: "", sets: [{ reps: 10, weight: 0 }] },
+      { exercise, exerciseData, notes: "", sets: [{ reps: 10, weight: 0 }] },
     ]);
   };
 
@@ -134,64 +142,71 @@ export default function WorkoutContent({
   };
 
   return (
-    <div className="p-4 pb-24 max-w-xl mx-auto">
-      <header className="flex items-center gap-4 mb-4">
-        <Link
-          href="/"
-          className="p-2 rounded-md hover:bg-slate-800 transition-colors"
-        >
-          <ArrowLeftIcon className="w-5 h-5" />
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-xl font-semibold">Workout Details</h1>
-          <div className="flex items-center gap-2">
-            <p className="text-sm opacity-70">
-              {new Date(initialWorkout.date).toLocaleDateString()}
-            </p>
-            <SyncStatusIndicator syncStatus={syncStatus} onRetry={retrySync} />
+    <div className="pb-24 max-w-xl mx-auto">
+      <header className="sticky top-0 z-10 bg-slate-950 border-b border-slate-800 p-4 mb-4">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="p-2 rounded-md hover:bg-slate-800 transition-colors"
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold">Workout Details</h1>
+            <div className="flex items-center gap-2">
+              <p className="text-sm opacity-70">
+                {new Date(initialWorkout.date).toLocaleDateString()}
+              </p>
+              <SyncStatusIndicator
+                syncStatus={syncStatus}
+                onRetry={retrySync}
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <WorkoutDropdown
-            workoutId={initialWorkout._id}
-            onDeleted={() => router.replace("/")}
-          />
+          <div className="flex gap-2">
+            <WorkoutDropdown
+              workoutId={initialWorkout._id}
+              onDeleted={() => router.replace("/")}
+            />
+          </div>
         </div>
       </header>
 
-      {items.length > 0 && (
-        <div className="mb-6">
-          <MuscleGroupStats workoutId={initialWorkout._id} variant="full" />
-        </div>
-      )}
+      <div className="px-4">
+        {items.length > 0 && (
+          <div className="mb-6">
+            <MuscleGroupStats workoutId={initialWorkout._id} variant="full" />
+          </div>
+        )}
 
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3">
-          {items.map((item, idx) => (
-            <ExerciseEditor
-              key={idx}
-              value={item}
-              onChange={(v) => {
-                setItems((prev) => prev.map((p, i) => (i === idx ? v : p)));
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            {items.map((item, idx) => (
+              <ExerciseEditor
+                key={idx}
+                value={item}
+                onChange={(v) => {
+                  setItems((prev) => prev.map((p, i) => (i === idx ? v : p)));
+                }}
+                onDelete={() => {
+                  setItems((prev) => prev.filter((_, i) => i !== idx));
+                }}
+                isEditing={true}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm opacity-80">Workout notes</label>
+            <textarea
+              value={notes}
+              onChange={(e) => {
+                setNotes(e.target.value);
               }}
-              onDelete={() => {
-                setItems((prev) => prev.filter((_, i) => i !== idx));
-              }}
-              isEditing={true}
+              className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-20"
+              placeholder="How did it go? RPE, overall feel, etc."
             />
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-sm opacity-80">Workout notes</label>
-          <textarea
-            value={notes}
-            onChange={(e) => {
-              setNotes(e.target.value);
-            }}
-            className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-20"
-            placeholder="How did it go? RPE, overall feel, etc."
-          />
+          </div>
         </div>
       </div>
 

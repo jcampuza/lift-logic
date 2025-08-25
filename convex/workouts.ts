@@ -55,6 +55,10 @@ export const getWorkout = query({
           v.object({ kind: v.literal("global"), id: v.id("globalExercises") }),
           v.object({ kind: v.literal("user"), id: v.id("userExercises") }),
         ),
+        exerciseData: v.object({
+          name: v.string(),
+          primaryMuscle: v.optional(v.string()),
+        }),
         notes: v.optional(v.string()),
         sets: v.array(
           v.object({ reps: v.number(), weight: v.optional(v.number()) }),
@@ -70,7 +74,45 @@ export const getWorkout = query({
     if (!workout) throw new Error("Workout not found");
     if (workout.userId !== userId) throw new Error("Unauthorized");
 
-    return workout;
+    // Enrich workout items with exercise data
+    const enrichedItems = await Promise.all(
+      workout.items.map(async (item) => {
+        let exerciseData;
+        if (item.exercise.kind === "global") {
+          const globalExercise = await ctx.db.get(item.exercise.id);
+          exerciseData = globalExercise
+            ? {
+                name: globalExercise.name,
+                primaryMuscle: globalExercise.primaryMuscle,
+              }
+            : { name: "Unknown Exercise", primaryMuscle: undefined };
+        } else {
+          const userExercise = await ctx.db.get(item.exercise.id);
+          exerciseData = userExercise
+            ? {
+                name: userExercise.name,
+                primaryMuscle: userExercise.primaryMuscle,
+              }
+            : { name: "Unknown Exercise", primaryMuscle: undefined };
+        }
+
+        return {
+          exercise: item.exercise,
+          exerciseData,
+          notes: item.notes,
+          sets: item.sets,
+        };
+      }),
+    );
+
+    return {
+      _id: workout._id,
+      _creationTime: workout._creationTime,
+      userId: workout.userId,
+      date: workout.date,
+      notes: workout.notes,
+      items: enrichedItems,
+    };
   },
 });
 

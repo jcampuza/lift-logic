@@ -1,19 +1,10 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { useMemo, useState } from "react";
-import CreateUserExercise from "@/components/CreateUserExercise";
+import { useState } from "react";
 import ExerciseDropdown from "@/components/ExerciseDropdown";
-import { Autocomplete } from "@/components/ui/autocomplete";
-import { useExerciseSearch } from "@/hooks/useExerciseSearch";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { NumericInput } from "@/components/ui/numeric-input";
-import { XIcon } from "lucide-react";
+import { XIcon, ChevronDownIcon, ChevronUpIcon, EditIcon } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -21,8 +12,14 @@ export type ExerciseRef =
   | { kind: "global"; id: Id<"globalExercises"> }
   | { kind: "user"; id: Id<"userExercises"> };
 
+export type ExerciseData = {
+  name: string;
+  primaryMuscle?: string;
+};
+
 export type WorkoutItemDraft = {
-  exercise: ExerciseRef | null;
+  exercise: ExerciseRef;
+  exerciseData: ExerciseData;
   notes: string;
   sets: Array<{ reps: number; weight?: number }>;
 };
@@ -38,46 +35,12 @@ export function ExerciseEditor({
   onDelete: () => void;
   isEditing?: boolean;
 }) {
-  const { query: q, setQuery: setQ, exercises: results } = useExerciseSearch();
   const preferences = useQuery(api.exercises.getUserPreferences);
   const weightUnit = preferences?.weightUnit ?? "lbs";
 
-  type ResultItem =
-    | {
-        kind: "global";
-        _id: Id<"globalExercises">;
-        name: string;
-        primaryMuscle: string;
-      }
-    | {
-        kind: "user";
-        _id: Id<"userExercises">;
-        name: string;
-        primaryMuscle: string;
-      };
-  type AddNewItem = { kind: "add_new"; name: string };
-
-  const items: Array<ResultItem | AddNewItem> = useMemo(() => {
-    const base: Array<ResultItem | AddNewItem> = results;
-    const term = q.trim();
-    if (!isEditing || term === "") return base;
-    const exists = results.some(
-      (r) => r.name.toLowerCase() === term.toLowerCase(),
-    );
-    if (!exists) {
-      return [...base, { kind: "add_new", name: term } as AddNewItem];
-    }
-    return base;
-  }, [results, q, isEditing]);
-
-  const [showDialog, setShowDialog] = useState(false);
-  const [newName, setNewName] = useState("");
-
-  const selected = value.exercise
-    ? (results.find(
-        (r) => r.kind === value.exercise?.kind && r._id === value.exercise?.id,
-      ) ?? null)
-    : null;
+  // Start expanded by default
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [showNotes, setShowNotes] = useState(value.notes.trim() !== "");
 
   const addSet = () => {
     const lastSet = value.sets[value.sets.length - 1];
@@ -106,80 +69,74 @@ export function ExerciseEditor({
     onChange({ ...value, sets: value.sets.filter((_, idx) => idx !== i) });
   };
 
+  // Generate summary text for collapsed view
+  const getSummary = () => {
+    if (value.sets.length === 0) return "No sets";
+
+    const totalSets = value.sets.length;
+    const weights = value.sets.map((s) => s.weight).filter((w) => w && w > 0);
+    const reps = value.sets.map((s) => s.reps);
+
+    let summary = `${totalSets} set${totalSets > 1 ? "s" : ""}`;
+
+    if (reps.length > 0) {
+      const minReps = Math.min(...reps);
+      const maxReps = Math.max(...reps);
+      if (minReps === maxReps) {
+        summary += ` × ${minReps} reps`;
+      } else {
+        summary += ` × ${minReps}-${maxReps} reps`;
+      }
+    }
+
+    if (weights.length > 0) {
+      const minWeight = Math.min(...(weights as number[]));
+      const maxWeight = Math.max(...(weights as number[]));
+      if (minWeight === maxWeight) {
+        summary += ` @ ${minWeight}${weightUnit}`;
+      } else {
+        summary += ` @ ${minWeight}-${maxWeight}${weightUnit}`;
+      }
+    }
+
+    return summary;
+  };
+
   return (
     <div className="rounded-lg border border-slate-800 bg-slate-900 p-3">
-      {!selected ? (
-        <div className="flex gap-2 items-center">
-          <Autocomplete
-            className="flex-1"
-            inputValue={q}
-            onInputValueChange={setQ}
-            items={items}
-            getKey={(r) =>
-              r.kind === "add_new"
-                ? `add:${r.name}`
-                : `${r.kind}:${String(r._id)}`
-            }
-            getLabel={(r) => (r.kind === "add_new" ? r.name : r.name)}
-            onSelect={(r) => {
-              if (!isEditing) return;
-              if ((r as AddNewItem).kind === "add_new") {
-                const name = (r as AddNewItem).name;
-                setNewName(name);
-                setShowDialog(true);
-                return;
-              }
-              const it = r as ResultItem;
-              onChange({
-                ...value,
-                exercise:
-                  it.kind === "global"
-                    ? { kind: "global", id: it._id }
-                    : { kind: "user", id: it._id },
-              });
-            }}
-            placeholder="Search exercises (type to filter)"
-            disabled={!isEditing}
-            renderItem={(r) => {
-              if ((r as AddNewItem).kind === "add_new") {
-                const name = (r as AddNewItem).name;
-                return (
-                  <div className="flex items-center justify-between text-emerald-400">
-                    <span>Add &quot;{name}&quot; as a new exercise</span>
-                  </div>
-                );
-              }
-              const it = r as ResultItem;
-              return (
-                <div className="flex items-center justify-between">
-                  <span>{it.name}</span>
-                  {it.primaryMuscle && (
-                    <span className="text-xs opacity-60">
-                      {it.primaryMuscle}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
-          />
-          {isEditing && <ExerciseDropdown onDelete={onDelete} />}
-        </div>
-      ) : (
-        <div className="flex gap-2 items-center">
-          <div className="flex-1">
-            <div className="text-sm font-semibold">{selected.name}</div>
-          </div>
-          {isEditing && (
-            <ExerciseDropdown
-              onDelete={onDelete}
-              onClearExercise={() => onChange({ ...value, exercise: null })}
-              showClearOption={true}
-            />
+      <div className="flex gap-2 items-center">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-1 hover:bg-slate-800 rounded-md transition-colors"
+          title={isExpanded ? "Collapse" : "Expand"}
+        >
+          {isExpanded ? (
+            <ChevronUpIcon className="size-4" />
+          ) : (
+            <ChevronDownIcon className="size-4" />
+          )}
+        </button>
+        <div className="flex-1">
+          <div className="text-sm font-semibold">{value.exerciseData.name}</div>
+          {value.exerciseData.primaryMuscle && (
+            <div className="text-xs opacity-60">
+              {value.exerciseData.primaryMuscle}
+            </div>
+          )}
+          {!isExpanded && (
+            <div className="text-xs opacity-70 mt-1">{getSummary()}</div>
           )}
         </div>
-      )}
+        {isEditing && (
+          <ExerciseDropdown
+            onDelete={onDelete}
+            onClearExercise={() => onChange({ ...value, sets: [], notes: "" })}
+            showClearOption={true}
+          />
+        )}
+      </div>
 
-      {selected && (
+      {isExpanded && (
         <div className="mt-4">
           <div className="border-t border-slate-800 my-4"></div>
           <div className="flex flex-col gap-2">
@@ -229,35 +186,40 @@ export function ExerciseEditor({
               </button>
             )}
           </div>
+
+          {/* Notes section with toggle */}
           <div className="mt-3">
-            <label className="text-sm opacity-80">Exercise notes</label>
-            <textarea
-              value={value.notes}
-              onChange={(e) => onChange({ ...value, notes: e.target.value })}
-              className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-16"
-              placeholder="Notes, RPE, how it felt, etc."
-              disabled={!isEditing}
-            />
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => setShowNotes(!showNotes)}
+                className="flex items-center gap-1 text-sm opacity-80 hover:opacity-100 transition-opacity"
+              >
+                <EditIcon className="size-3" />
+                Exercise notes
+                {showNotes ? (
+                  <ChevronUpIcon className="size-3" />
+                ) : (
+                  <ChevronDownIcon className="size-3" />
+                )}
+              </button>
+              {!showNotes && value.notes.trim() && (
+                <span className="text-xs opacity-60 bg-slate-800 px-2 py-1 rounded">
+                  Has notes
+                </span>
+              )}
+            </div>
+            {showNotes && (
+              <textarea
+                value={value.notes}
+                onChange={(e) => onChange({ ...value, notes: e.target.value })}
+                className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-16"
+                placeholder="Notes, RPE, how it felt, etc."
+                disabled={!isEditing}
+              />
+            )}
           </div>
         </div>
       )}
-
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add new exercise</DialogTitle>
-          </DialogHeader>
-          <CreateUserExercise
-            defaultName={newName}
-            onCreated={(id, createdName) => {
-              onChange({ ...value, exercise: { kind: "user", id } });
-              setQ(createdName);
-              setShowDialog(false);
-              setNewName("");
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

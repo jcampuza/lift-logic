@@ -9,6 +9,7 @@ const isProtectedRoute = createRouteMatcher([
   "/",
   "/server",
   "/workouts/:path*",
+  "/settings",
 ]);
 
 export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {

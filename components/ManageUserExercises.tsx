@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { TrashIcon } from "lucide-react";
+import { PencilIcon, TrashIcon } from "lucide-react";
 import { DeleteUserExerciseDialog } from "./DeleteUserExerciseDialog";
+import { EditUserExerciseDialog } from "./EditUserExerciseDialog";
 import { api } from "../convex/_generated/api";
 
 export function ManageUserExercises() {
@@ -30,20 +31,35 @@ export function ManageUserExercises() {
             <div className="font-medium text-sm">{exercise.name}</div>
             <div className="text-xs opacity-70">{exercise.primaryMuscle}</div>
           </div>
-          <DeleteUserExerciseDialog
-            exerciseId={exercise._id}
-            exerciseName={exercise.name}
-            onDeleted={() => {
-              // The query will automatically refetch and update the UI
-            }}
-          >
-            <button
-              className="p-2 rounded-md hover:bg-slate-800 text-red-400 hover:text-red-300 transition-colors"
-              title={`Delete ${exercise.name}`}
+          <div className="flex items-center gap-1">
+            <EditUserExerciseDialog
+              exerciseId={exercise._id}
+              onUpdated={() => {
+                // The query will automatically refetch and update the UI
+              }}
             >
-              <TrashIcon className="w-4 h-4" />
-            </button>
-          </DeleteUserExerciseDialog>
+              <button
+                className="p-2 rounded-md hover:bg-slate-800 text-blue-400 hover:text-blue-300 transition-colors"
+                title={`Edit ${exercise.name}`}
+              >
+                <PencilIcon className="w-4 h-4" />
+              </button>
+            </EditUserExerciseDialog>
+            <DeleteUserExerciseDialog
+              exerciseId={exercise._id}
+              exerciseName={exercise.name}
+              onDeleted={() => {
+                // The query will automatically refetch and update the UI
+              }}
+            >
+              <button
+                className="p-2 rounded-md hover:bg-slate-800 text-red-400 hover:text-red-300 transition-colors"
+                title={`Delete ${exercise.name}`}
+              >
+                <TrashIcon className="w-4 h-4" />
+              </button>
+            </DeleteUserExerciseDialog>
+          </div>
         </div>
       ))}
     </div>

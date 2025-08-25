@@ -76,6 +76,25 @@ Core entities defined in `convex/schema.ts`:
 - Authentication state managed through `useConvexAuth()`
 - Exercise references support both global and user-specific exercises
 
+### Convex Best Practices
+
+**NEVER return raw database documents from Convex queries.**
+
+Database documents include system fields (`_creationTime`, `_id`) and potentially sensitive fields (like `userId`) that may not match your return validator. Always explicitly return only the fields needed:
+
+```typescript
+// ❌ Bad - returns raw db document with extra fields
+return exercise;
+
+// ✅ Good - explicitly return only validated fields
+return {
+  _id: exercise._id,
+  name: exercise.name,
+  primaryMuscle: exercise.primaryMuscle,
+  // ... other fields as needed
+};
+```
+
 ### Loading States & Skeleton Pattern
 
 **Always use skeleton components for loading states instead of simple text messages.**
@@ -98,3 +117,5 @@ Available skeleton components:
 ### Development Setup
 
 After cloning, run `npm install && npm run dev` to start the development environment. The `predev` script handles Convex setup automatically.
+
+- Always run typechecking, formatting and linting after any change. You can do so with `bun run check` This will ensure it still compiles/passes linting
