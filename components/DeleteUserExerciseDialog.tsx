@@ -1,6 +1,8 @@
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -27,7 +29,9 @@ export function DeleteUserExerciseDialog({
   onDeleted?: () => void;
   children: React.ReactNode;
 }) {
-  const checkUsage = useQuery(api.exercises.checkExerciseUsage, { exerciseId });
+  const { data: checkUsage } = useQuery(
+    convexQuery(api.exercises.checkExerciseUsage, { exerciseId }),
+  );
   const deleteExercise = useMutation(api.exercises.deleteUserExercise);
   const [submitting, setSubmitting] = useState(false);
 

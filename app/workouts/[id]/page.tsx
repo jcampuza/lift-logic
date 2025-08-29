@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQueryWithStatus } from "@/hooks/useQueryWithStatus";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import WorkoutContent from "./WorkoutContent";
@@ -16,7 +17,7 @@ export default function WorkoutDetailPage() {
     isPending,
     isError,
     isSuccess,
-  } = useQueryWithStatus(api.workouts.getWorkout, { id: workoutId });
+  } = useQuery(convexQuery(api.workouts.getWorkout, { id: workoutId }));
 
   if (isPending) {
     return <WorkoutDetailSkeleton />;

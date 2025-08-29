@@ -1,4 +1,5 @@
-import { useQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { useMemo, useState } from "react";
 import Fuse from "fuse.js";
 import { api } from "@/convex/_generated/api";
@@ -20,7 +21,9 @@ export type ExerciseSearchResult =
 
 export function useExerciseSearch() {
   const [query, setQuery] = useState("");
-  const rawExercises = useQuery(api.exercises.getAllExercises);
+  const { data: rawExercises } = useQuery(
+    convexQuery(api.exercises.getAllExercises, {}),
+  );
   const allExercises = useMemo(() => rawExercises ?? [], [rawExercises]);
 
   // Configure Fuse.js for fuzzy search

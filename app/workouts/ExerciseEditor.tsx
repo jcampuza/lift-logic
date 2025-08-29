@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { useState } from "react";
 import ExerciseDropdown from "@/components/ExerciseDropdown";
 import { NumericInput } from "@/components/ui/numeric-input";
@@ -43,14 +44,18 @@ export function ExerciseEditor({
   isEditing?: boolean;
   currentWorkoutId?: Id<"workouts">;
 }) {
-  const preferences = useQuery(api.exercises.getUserPreferences);
+  const { data: preferences } = useQuery(
+    convexQuery(api.exercises.getUserPreferences, {}),
+  );
   const weightUnit = preferences?.weightUnit ?? "lbs";
 
   // Get last performance data for this exercise, excluding current workout
-  const lastPerformance = useQuery(api.workouts.getLastExercisePerformance, {
-    exercise: value.exercise,
-    excludeWorkoutId: currentWorkoutId,
-  });
+  const { data: lastPerformance } = useQuery(
+    convexQuery(api.workouts.getLastExercisePerformance, {
+      exercise: value.exercise,
+      excludeWorkoutId: currentWorkoutId,
+    }),
+  );
 
   // Start expanded by default
   const [isExpanded, setIsExpanded] = useState(true);

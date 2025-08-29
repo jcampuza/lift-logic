@@ -8,6 +8,7 @@
     "dev:convex": "convex dev",
     "build": "next build --turbopack",
     "start": "next start",
+    "local-prod": "bun run build && bun run start",
     "lint": "eslint .",
     "check": "bun run lint && bun run format:check",
     "format": "prettier --write .",
@@ -69,6 +70,7 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@convex-dev/react-query": "^0.0.0-alpha.11",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

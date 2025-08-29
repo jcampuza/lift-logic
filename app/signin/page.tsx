@@ -1,12 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { GoogleLogo } from "@/app/signin/GoogleLogo";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
+
+type SignInState = "idle" | "loading" | "error";
 
 export default function SignInPage() {
   const { signIn } = useAuthActions();
+  const [signInState, setSignInState] = useState<SignInState>("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const handleSignIn = async () => {
+    setSignInState("loading");
+    setErrorMessage("");
+
+    try {
+      await signIn("google");
+    } catch {
+      setErrorMessage("Failed to sign in. Please try again.");
+      setSignInState("error");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
@@ -41,11 +59,25 @@ export default function SignInPage() {
             className="w-full h-12 text-base font-medium bg-white hover:bg-gray-100 text-black border-0 shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02]"
             variant="outline"
             type="button"
-            onClick={() => void signIn("google")}
+            onClick={handleSignIn}
+            disabled={signInState === "loading"}
           >
-            <GoogleLogo className="mr-3 h-5 w-5" />
-            Sign in with Google
+            {signInState === "loading" ? (
+              <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+            ) : (
+              <GoogleLogo className="mr-3 h-5 w-5" />
+            )}
+            {signInState === "loading"
+              ? "Signing in..."
+              : "Sign in with Google"}
           </Button>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <p className="text-center text-red-400 text-sm mt-3">
+              {errorMessage}
+            </p>
+          )}
 
           {/* Footer Text */}
           <p className="text-center text-slate-400 text-sm mt-6">

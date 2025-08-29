@@ -1,7 +1,9 @@
 "use client";
 
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useConvexAuth } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import Link from "next/link";
 import MuscleGroupStats from "@/components/MuscleGroupStats";
 import WorkoutDropdown from "@/components/WorkoutDropdown";
@@ -27,9 +29,12 @@ function SettingsLink() {
 }
 
 function Content() {
-  const workouts = useQuery(api.workouts.listWorkouts) ?? undefined;
-  const exercises =
-    useQuery(api.exercises.searchExercises, { q: undefined }) ?? [];
+  const { data: workouts } = useQuery(
+    convexQuery(api.workouts.listWorkouts, {}),
+  );
+  const { data: exercises = [] } = useQuery(
+    convexQuery(api.exercises.searchExercises, { q: undefined }),
+  );
   // deletion handled via DeleteWorkoutDialog component
   const globalIdToName = new Map<Id<"globalExercises">, string>();
   const userIdToName = new Map<Id<"userExercises">, string>();

@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -15,7 +16,9 @@ export function MuscleGroupStats({
   variant = "compact",
   className = "",
 }: MuscleGroupStatsProps) {
-  const analytics = useQuery(api.workouts.getWorkoutAnalytics, { workoutId });
+  const { data: analytics } = useQuery(
+    convexQuery(api.workouts.getWorkoutAnalytics, { workoutId }),
+  );
 
   if (!analytics) {
     return (

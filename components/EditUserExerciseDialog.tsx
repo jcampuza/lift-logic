@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { useState } from "react";
 import {
   Dialog,
@@ -26,7 +27,9 @@ export function EditUserExerciseDialog({
   onUpdated?: (name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const exercise = useQuery(api.exercises.getUserExercise, { exerciseId });
+  const { data: exercise } = useQuery(
+    convexQuery(api.exercises.getUserExercise, { exerciseId }),
+  );
 
   if (!exercise) {
     return (
