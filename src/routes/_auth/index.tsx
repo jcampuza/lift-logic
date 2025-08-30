@@ -34,7 +34,7 @@ function Content() {
     convexQuery(api.workouts.listWorkouts, {}),
   )
   const { data: exercises = [] } = useQuery(
-    convexQuery(api.exercises.searchExercises, { q: undefined }),
+    convexQuery(api.exercises.getAllExercises, {}),
   )
 
   const globalIdToName = new Map<Id<'globalExercises'>, string>()

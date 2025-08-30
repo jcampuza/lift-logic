@@ -363,34 +363,43 @@ export const getWorkoutAnalytics = query({
     // Calculate muscle group counts
     const muscleGroups: Record<string, number> = {
       Chest: 0,
+      'Upper Chest': 0,
       Shoulders: 0,
+      'Front Deltoids': 0,
+      'Rear Deltoids': 0,
+      'Lateral Deltoids': 0,
       Back: 0,
-      Arms: 0,
-      Legs: 0,
-      Core: 0,
+      Biceps: 0,
+      Triceps: 0,
+      Forearms: 0,
+      Quads: 0,
+      Hamstrings: 0,
+      Glutes: 0,
+      Calves: 0,
+      Abs: 0,
     }
 
-    // Simple broad muscle group mapping (inline to avoid import issues in Convex)
-    const getBroadGroup = (muscle: string): string | null => {
+    // Simple muscle group mapping (inline to avoid import issues in Convex)
+    const getMuscleGroup = (muscle: string): string | null => {
       const mapping: Record<string, string> = {
         Chest: 'Chest',
-        'Upper Chest': 'Chest',
+        'Upper Chest': 'Upper Chest',
         Shoulders: 'Shoulders',
-        'Front Deltoids': 'Shoulders',
-        'Rear Deltoids': 'Shoulders',
-        'Lateral Deltoids': 'Shoulders',
+        'Front Deltoids': 'Front Deltoids',
+        'Rear Deltoids': 'Rear Deltoids',
+        'Lateral Deltoids': 'Lateral Deltoids',
         Back: 'Back',
         Lats: 'Back',
         Traps: 'Back',
         'Lower Back': 'Back',
-        Biceps: 'Arms',
-        Triceps: 'Arms',
-        Forearms: 'Arms',
-        Quads: 'Legs',
-        Hamstrings: 'Legs',
-        Glutes: 'Legs',
-        Calves: 'Legs',
-        Abs: 'Core',
+        Biceps: 'Biceps',
+        Triceps: 'Triceps',
+        Forearms: 'Forearms',
+        Quads: 'Quads',
+        Hamstrings: 'Hamstrings',
+        Glutes: 'Glutes',
+        Calves: 'Calves',
+        Abs: 'Abs',
       }
       return mapping[muscle] || null
     }
@@ -404,16 +413,16 @@ export const getWorkoutAnalytics = query({
       const setCount = item.sets.length
 
       // Count sets for primary muscle
-      const primaryBroad = getBroadGroup(exercise.primaryMuscle)
-      if (primaryBroad) {
-        muscleGroups[primaryBroad] += setCount
+      const primaryMuscle = getMuscleGroup(exercise.primaryMuscle)
+      if (primaryMuscle) {
+        muscleGroups[primaryMuscle] += setCount
       }
 
       // Count sets for secondary muscles (with reduced weight)
       for (const secondaryMuscle of exercise.secondaryMuscles) {
-        const secondaryBroad = getBroadGroup(secondaryMuscle)
-        if (secondaryBroad && secondaryBroad !== primaryBroad) {
-          muscleGroups[secondaryBroad] += setCount * 0.5
+        const secondaryMuscleGroup = getMuscleGroup(secondaryMuscle)
+        if (secondaryMuscleGroup && secondaryMuscleGroup !== primaryMuscle) {
+          muscleGroups[secondaryMuscleGroup] += setCount * 0.5
         }
       }
     }

@@ -42,11 +42,9 @@ export function MuscleGroupStats({
   }
 
   if (variant === 'compact') {
-    // Show top 3 muscle groups for list cards
-    const topGroups = muscleGroupEntries.slice(0, 3)
     return (
       <div className={`${className} flex gap-2 flex-wrap`}>
-        {topGroups.map(([group, sets]) => {
+        {muscleGroupEntries.map(([group, sets]) => {
           const displaySets = sets % 1 === 0 ? sets.toString() : sets.toFixed(1)
           return (
             <span
