@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from 'lucide-react'
 import { useMutation } from 'convex/react'
 import { Link } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import AddExerciseDialog from './AddExerciseDialog'
 import AddExerciseFab from './AddExerciseFab'
 import MuscleGroupStats from './MuscleGroupStats'
@@ -115,19 +115,44 @@ export default function WorkoutContent({
   // Debounce the sync function to avoid excessive API calls
   const debouncedSync = useDebounce(singleFlightSync, 250)
 
-  // Auto-save effect - trigger debounced sync when data changes
-  useEffect(() => {
-    debouncedSync(notes, items)
-  }, [notes, items, debouncedSync])
+  // Function to sync state with Convex - takes explicit values to handle async state updates
+  const syncStateWithConvex = useCallback(
+    (syncNotes?: string, syncItems?: Array<LocalWorkoutItemDraft>) => {
+      debouncedSync(syncNotes ?? notes, syncItems ?? items)
+    },
+    [notes, items, debouncedSync],
+  )
 
   const handleExerciseSelected = (
     exercise: ExerciseRef,
     exerciseData: { name: string; primaryMuscle?: string },
   ) => {
-    setItems((prev) => [
-      ...prev,
+    const newItems = [
+      ...items,
       { exercise, exerciseData, notes: '', sets: [{ reps: 10, weight: 0 }] },
-    ])
+    ]
+    setItems(newItems)
+    syncStateWithConvex(notes, newItems)
+  }
+
+  const handleExerciseChange = (
+    idx: number,
+    updatedItem: LocalWorkoutItemDraft,
+  ) => {
+    const newItems = items.map((p, i) => (i === idx ? updatedItem : p))
+    setItems(newItems)
+    syncStateWithConvex(notes, newItems)
+  }
+
+  const handleExerciseDelete = (idx: number) => {
+    const newItems = items.filter((_, i) => i !== idx)
+    setItems(newItems)
+    syncStateWithConvex(notes, newItems)
+  }
+
+  const handleNotesChange = (newNotes: string) => {
+    setNotes(newNotes)
+    syncStateWithConvex(newNotes, items)
   }
 
   const retrySync = () => {
@@ -139,20 +164,29 @@ export default function WorkoutContent({
 
   return (
     <div className="pb-24 max-w-xl mx-auto">
-      <header className="sticky top-0 z-[60] bg-slate-950 border-b border-slate-800 p-4 mb-4">
+      <header className="sticky top-0 z-[60] bg-background border-b border-border px-4 py-3 mb-4">
         <div className="flex items-center gap-4">
           <Link
             to="/"
-            className="p-2 rounded-md hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-md hover:bg-muted transition-colors"
           >
             <ArrowLeftIcon className="w-5 h-5" />
           </Link>
           <div className="flex-1">
             <h1 className="text-xl font-semibold">Workout Details</h1>
             <div className="flex items-center gap-2">
-              <p className="text-sm opacity-70">
+              <p className="text-sm text-muted-foreground">
                 {new Date(initialWorkout.date).toLocaleDateString()}
               </p>
+              {items.length > 0 && (
+                <span className="text-xs opacity-60">•</span>
+              )}
+              {items.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {items.reduce((total, item) => total + item.sets.length, 0)}{' '}
+                  total sets
+                </p>
+              )}
               <SyncStatusIndicator
                 syncStatus={syncStatus}
                 onRetry={retrySync}
@@ -182,12 +216,8 @@ export default function WorkoutContent({
               <ExerciseEditor
                 key={idx}
                 value={item}
-                onChange={(v) => {
-                  setItems((prev) => prev.map((p, i) => (i === idx ? v : p)))
-                }}
-                onDelete={() => {
-                  setItems((prev) => prev.filter((_, i) => i !== idx))
-                }}
+                onChange={(v) => handleExerciseChange(idx, v)}
+                onDelete={() => handleExerciseDelete(idx)}
                 isEditing={true}
                 currentWorkoutId={initialWorkout._id}
               />
@@ -195,13 +225,11 @@ export default function WorkoutContent({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm opacity-80">Workout notes</label>
+            <label className="text-sm text-foreground/80">Workout notes</label>
             <textarea
               value={notes}
-              onChange={(e) => {
-                setNotes(e.target.value)
-              }}
-              className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-20"
+              onChange={(e) => handleNotesChange(e.target.value)}
+              className="w-full rounded-md border border-border bg-background p-2 min-h-20"
               placeholder="How did it go? RPE, overall feel, etc."
             />
           </div>
@@ -230,7 +258,7 @@ function SyncStatusIndicator({
 }: SyncStatusIndicatorProps) {
   if (syncStatus.isSyncing) {
     return (
-      <span className="text-xs text-blue-400 flex items-center gap-1">
+      <span className="text-xs text-primary flex items-center gap-1">
         <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
           <circle
             className="opacity-25"
@@ -256,7 +284,7 @@ function SyncStatusIndicator({
     return (
       <button
         onClick={onRetry}
-        className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 cursor-pointer"
+        className="text-xs text-destructive hover:text-destructive/90 flex items-center gap-1 cursor-pointer"
       >
         <svg
           className="h-3 w-3"
@@ -290,7 +318,7 @@ function SyncStatusIndicator({
   }
 
   return (
-    <span className="text-xs text-green-400 flex items-center gap-1">
+    <span className="text-xs text-emerald-400 flex items-center gap-1">
       <svg
         className="h-3 w-3"
         fill="none"

@@ -51,7 +51,7 @@ export function MuscleGroupStats({
           return (
             <span
               key={group}
-              className="text-xs bg-slate-800 px-2 py-1 rounded opacity-80"
+              className="text-xs bg-muted/50 text-foreground/90 ring-1 ring-primary/30 px-2 py-1 rounded-md"
             >
               {group} {displaySets}
             </span>
@@ -72,10 +72,10 @@ export function MuscleGroupStats({
           return (
             <div
               key={group}
-              className="flex justify-between items-center bg-slate-800/50 px-3 py-2 rounded"
+              className="flex justify-between items-center bg-muted/60 border border-border px-3 py-2 rounded-md"
             >
               <span className="text-sm">{group}</span>
-              <span className="text-xs opacity-70">
+              <span className="text-xs text-muted-foreground">
                 {displaySets} set{isPlural ? 's' : ''}
               </span>
             </div>

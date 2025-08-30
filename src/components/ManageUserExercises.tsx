@@ -11,7 +11,7 @@ import { api } from '../../convex/_generated/api'
 
 function UserExerciseSkeleton() {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 p-3 flex items-center justify-between">
+    <div className="rounded-lg border border-border bg-card p-3 flex items-center justify-between">
       <div className="flex-1 space-y-1">
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-3 w-24" />
@@ -43,7 +43,7 @@ export function ManageUserExercises() {
             // The query will automatically refetch and update the UI
           }}
         >
-          <button className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-foreground text-background rounded-md hover:bg-foreground/90 transition-colors">
+          <button className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
             <PlusIcon className="w-4 h-4" />
             Add Exercise
           </button>
@@ -66,7 +66,7 @@ export function ManageUserExercises() {
           {filteredUserExercises.map((exercise) => (
             <div
               key={exercise._id}
-              className="rounded-lg border border-slate-800 bg-slate-900 p-3 flex items-center justify-between"
+              className="rounded-lg border border-border bg-card p-3 flex items-center justify-between"
             >
               <div className="flex-1">
                 <div className="font-medium text-sm">{exercise.name}</div>
@@ -82,7 +82,7 @@ export function ManageUserExercises() {
                   }}
                 >
                   <button
-                    className="p-2 rounded-md hover:bg-slate-800 text-blue-400 hover:text-blue-300 transition-colors"
+                    className="p-2 rounded-md hover:bg-muted text-primary hover:text-primary/90 transition-colors"
                     title={`Edit ${exercise.name}`}
                   >
                     <PencilIcon className="w-4 h-4" />
@@ -96,7 +96,7 @@ export function ManageUserExercises() {
                   }}
                 >
                   <button
-                    className="p-2 rounded-md hover:bg-slate-800 text-red-400 hover:text-red-300 transition-colors"
+                    className="p-2 rounded-md hover:bg-muted text-destructive hover:text-destructive/90 transition-colors"
                     title={`Delete ${exercise.name}`}
                   >
                     <TrashIcon className="w-4 h-4" />

@@ -1,8 +1,20 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export function WorkoutSkeleton() {
+export function WorkoutSkeleton({ delayMs = 250 }: { delayMs?: number }) {
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    const id = setTimeout(() => setShow(true), delayMs)
+    return () => clearTimeout(id)
+  }, [delayMs])
+
+  if (!show) return null
+
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex justify-between items-center">
         <Skeleton className="h-6 w-24" /> {/* Date */}
         <Skeleton className="h-6 w-6 rounded-md" /> {/* Three dots menu */}
@@ -24,12 +36,18 @@ export function WorkoutSkeleton() {
   )
 }
 
-export function WorkoutListSkeleton({ count = 3 }: { count?: number }) {
+export function WorkoutListSkeleton({
+  count = 3,
+  delayMs = 250,
+}: {
+  count?: number
+  delayMs?: number
+}) {
   return (
     <ul className="flex flex-col gap-3">
       {Array.from({ length: count }, (_, i) => (
         <li key={i}>
-          <WorkoutSkeleton />
+          <WorkoutSkeleton delayMs={delayMs} />
         </li>
       ))}
     </ul>

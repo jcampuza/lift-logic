@@ -123,7 +123,7 @@ export function AddExerciseDialog({
                   if ((r as AddNewItem).kind === 'add_new') {
                     const name = (r as AddNewItem).name
                     return (
-                      <div className="flex items-center justify-between text-emerald-400">
+                      <div className="flex items-center justify-between text-primary">
                         <span>Add &quot;{name}&quot; as a new exercise</span>
                       </div>
                     )

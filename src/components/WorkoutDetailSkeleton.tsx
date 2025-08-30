@@ -1,14 +1,26 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { Link } from '@tanstack/react-router'
 import { Skeleton } from './ui/skeleton'
 
-export function WorkoutDetailSkeleton() {
+export function WorkoutDetailSkeleton({ delayMs = 250 }: { delayMs?: number }) {
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    const id = setTimeout(() => setShow(true), delayMs)
+    return () => clearTimeout(id)
+  }, [delayMs])
+
+  if (!show) return null
+
   return (
     <div className="p-4 pb-24 max-w-xl mx-auto">
       <header className="flex items-center gap-4 mb-4">
         <Link
           to="/"
-          className="p-2 rounded-md hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-md hover:bg-muted transition-colors"
         >
           <ArrowLeftIcon className="w-5 h-5" />
         </Link>
@@ -30,7 +42,7 @@ export function WorkoutDetailSkeleton() {
           {Array.from({ length: 2 }, (_, i) => (
             <div
               key={i}
-              className="rounded-lg border border-slate-800 bg-slate-900 p-4"
+              className="rounded-lg border border-border bg-card p-4"
             >
               <div className="flex items-center justify-between mb-3">
                 <Skeleton className="h-5 w-24" /> {/* Exercise name */}

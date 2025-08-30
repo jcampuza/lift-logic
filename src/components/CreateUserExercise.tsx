@@ -60,14 +60,14 @@ export function CreateUserExercise({
 
   return (
     <div className={className}>
-      <div className="rounded-lg border border-slate-800 bg-slate-900 p-4 space-y-3">
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
         <div className="grid gap-1.5">
           <label className="text-sm opacity-80">Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Bulgarian Split Squat"
-            className="w-full rounded-md border border-slate-800 bg-slate-950 p-2"
+            className="w-full rounded-md border border-border bg-background p-2"
           />
         </div>
         <div className="grid gap-1.5">
@@ -88,7 +88,7 @@ export function CreateUserExercise({
             value={aliases}
             onChange={(e) => setAliases(e.target.value)}
             placeholder="Comma-separated alternative names"
-            className="w-full rounded-md border border-slate-800 bg-slate-950 p-2"
+            className="w-full rounded-md border border-border bg-background p-2"
           />
         </div>
         <div className="grid gap-1.5">
@@ -97,13 +97,13 @@ export function CreateUserExercise({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Cues, setup tips, etc."
-            className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-20"
+            className="w-full rounded-md border border-border bg-background p-2 min-h-20"
           />
         </div>
 
         <div className="flex items-center gap-3 pt-2">
           <button
-            className="rounded-md px-3 py-2 bg-foreground text-background disabled:opacity-50"
+            className="rounded-md px-3 py-2 bg-primary text-primary-foreground disabled:opacity-50"
             disabled={submitting}
             onClick={async () => {
               const trimmedName = name.trim()

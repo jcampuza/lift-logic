@@ -103,7 +103,7 @@ export function Autocomplete<T>(props: AutocompleteProps<T>) {
         disabled={disabled}
         autoFocus={autoFocus}
         className={cn(
-          'w-full rounded-md border border-slate-800 bg-slate-950 p-2 outline-none',
+          'w-full rounded-md border border-border bg-background p-2 outline-none',
           inputClassName,
         )}
         placeholder={placeholder}
@@ -116,7 +116,7 @@ export function Autocomplete<T>(props: AutocompleteProps<T>) {
         ref={listRef}
         id={listId}
         className={cn(
-          'mt-2 max-h-40 overflow-auto rounded-md border border-slate-800 bg-slate-900',
+          'mt-2 max-h-40 overflow-auto rounded-md border border-border bg-card',
           shouldOpen ? 'block' : 'hidden',
           listClassName,
         )}
@@ -137,8 +137,8 @@ export function Autocomplete<T>(props: AutocompleteProps<T>) {
                 role="option"
                 aria-selected={highlighted}
                 className={cn(
-                  'w-full text-left px-3 py-3 text-sm cursor-pointer hover:bg-slate-800 focus:bg-slate-800 focus:outline-none min-h-[48px] flex items-center',
-                  highlighted && 'bg-slate-800',
+                  'w-full text-left px-3 py-3 text-sm cursor-pointer hover:bg-muted focus:bg-muted focus:outline-none min-h-[48px] flex items-center',
+                  highlighted && 'bg-muted',
                 )}
                 onMouseEnter={() => setHighlightedIndex(idx)}
                 onMouseDown={(e) => e.preventDefault()}

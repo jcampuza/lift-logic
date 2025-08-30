@@ -34,6 +34,12 @@ No test framework currently configured. Use Vitest if adding tests.
 - **Props interface**: Define inline or as separate interface
 - **Event handlers**: Use arrow functions or useCallback for stability
 
+### Data Fetching
+
+- **Queries**: Always use `useQuery` hook from Convex for data fetching
+- **Loading states**: Always implement skeleton loaders where possible instead of basic loading text
+- **Error handling**: Properly handle error states from query hooks
+
 ### Naming Conventions
 
 - **Components**: PascalCase (e.g., `AddExerciseDialog`)

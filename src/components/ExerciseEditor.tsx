@@ -120,11 +120,11 @@ export function ExerciseEditor({
   }
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 p-3">
+    <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex gap-2 items-center">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="p-1 hover:bg-slate-800 rounded-md transition-colors"
+          className="p-1 hover:bg-muted rounded-md transition-colors"
           title={isExpanded ? 'Collapse' : 'Expand'}
         >
           {isExpanded ? (
@@ -155,11 +155,11 @@ export function ExerciseEditor({
 
       {isExpanded && (
         <div className="mt-4">
-          <div className="border-t border-slate-800 my-4"></div>
+          <div className="border-t border-border my-4"></div>
 
           {/* Last performance indicator */}
           {lastPerformance && (
-            <div className="mb-3 p-3 bg-slate-800/30 rounded-md border border-slate-700/50">
+            <div className="mb-3 p-3 bg-muted/40 rounded-md border border-border">
               <div className="flex items-center gap-2 text-sm">
                 <ClockIcon className="size-4 opacity-60" />
                 <span className="opacity-80">
@@ -191,7 +191,7 @@ export function ExerciseEditor({
                   allowDecimals={true}
                   allowEmpty={true}
                   placeholder="0"
-                  className="w-24 rounded-md border border-slate-800 bg-slate-950 p-2"
+                  className="w-24"
                   disabled={!isEditing}
                 />
                 <span className="text-xs opacity-70">{weightUnit}</span>
@@ -202,7 +202,7 @@ export function ExerciseEditor({
                   allowDecimals={false}
                   allowEmpty={false}
                   placeholder="1"
-                  className="w-20 rounded-md border border-slate-800 bg-slate-950 p-2"
+                  className="w-20"
                   disabled={!isEditing}
                 />
                 <span className="text-xs opacity-70">reps</span>
@@ -220,7 +220,7 @@ export function ExerciseEditor({
             ))}
             {isEditing && (
               <button
-                className="self-start bg-slate-800 text-foreground rounded-md px-3 py-1"
+                className="self-start bg-muted text-foreground rounded-md px-3 py-1 hover:bg-muted/80 transition-colors"
                 onClick={addSet}
               >
                 Add set
@@ -244,7 +244,7 @@ export function ExerciseEditor({
                 )}
               </button>
               {!showNotes && value.notes.trim() && (
-                <span className="text-xs opacity-60 bg-slate-800 px-2 py-1 rounded">
+                <span className="text-xs opacity-60 bg-muted px-2 py-1 rounded">
                   Has notes
                 </span>
               )}
@@ -253,7 +253,7 @@ export function ExerciseEditor({
               <textarea
                 value={value.notes}
                 onChange={(e) => onChange({ ...value, notes: e.target.value })}
-                className="w-full rounded-md border border-slate-800 bg-slate-950 p-2 min-h-16"
+                className="w-full rounded-md border border-border bg-background p-2 min-h-16"
                 placeholder="Notes, RPE, how it felt, etc."
                 disabled={!isEditing}
               />

@@ -22,7 +22,7 @@ export function SignOut() {
 
   return (
     <Button
-      className="bg-slate-800 text-foreground hover:bg-slate-700 disabled:opacity-50"
+      className="bg-muted text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
       onClick={handleSignOut}
       disabled={isSigningOut}
       variant="secondary"

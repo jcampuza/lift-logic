@@ -37,8 +37,8 @@ export function UserPreferences() {
             disabled={!weightUnit}
             className={
               weightUnit === 'lbs'
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-800 text-foreground hover:bg-slate-700'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-foreground hover:bg-primary/90'
             }
             onClick={() => handleWeightUnitChange('lbs')}
           >
@@ -48,8 +48,8 @@ export function UserPreferences() {
             disabled={!weightUnit}
             className={
               weightUnit === 'kg'
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-800 text-foreground hover:bg-slate-700'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-foreground hover:bg-primary/90'
             }
             onClick={() => handleWeightUnitChange('kg')}
           >
