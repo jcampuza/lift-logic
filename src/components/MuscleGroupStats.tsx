@@ -28,12 +28,7 @@ export function MuscleGroupStats({
     )
   }
 
-  // Get top muscle groups (sorted by set count)
-  const muscleGroupEntries = Object.entries(analytics.muscleGroups)
-    .filter(([, sets]) => sets > 0)
-    .sort(([, a], [, b]) => b - a)
-
-  if (muscleGroupEntries.length === 0) {
+  if (analytics.muscleGroups.length === 0) {
     return (
       <div className={`${className} opacity-60`}>
         <div className="text-xs">No muscle groups tracked</div>
@@ -42,18 +37,19 @@ export function MuscleGroupStats({
   }
 
   if (variant === 'compact') {
-    // Show top 3 muscle groups for list cards
-    const topGroups = muscleGroupEntries.slice(0, 3)
+    // Show all muscle groups for list cards
     return (
       <div className={`${className} flex gap-2 flex-wrap`}>
-        {topGroups.map(([group, sets]) => {
-          const displaySets = sets % 1 === 0 ? sets.toString() : sets.toFixed(1)
+        {analytics.muscleGroups.map((group) => {
+          const displaySets =
+            group.sets % 1 === 0 ? group.sets.toString() : group.sets.toFixed(1)
+
           return (
             <span
-              key={group}
+              key={group.name}
               className="text-xs bg-muted/50 text-foreground/90 ring-1 ring-primary/30 px-2 py-1 rounded-md"
             >
-              {group} {displaySets}
+              {group.name} {displaySets}
             </span>
           )
         })}
@@ -66,15 +62,17 @@ export function MuscleGroupStats({
     <div className={`${className} space-y-2`}>
       <h3 className="text-sm font-medium opacity-90">Muscle Groups</h3>
       <div className="grid grid-cols-2 gap-2">
-        {muscleGroupEntries.map(([group, sets]) => {
-          const displaySets = sets % 1 === 0 ? sets.toString() : sets.toFixed(1)
-          const isPlural = sets !== 1
+        {analytics.muscleGroups.map((group) => {
+          const displaySets =
+            group.sets % 1 === 0 ? group.sets.toString() : group.sets.toFixed(1)
+          const isPlural = group.sets !== 1
+
           return (
             <div
-              key={group}
+              key={group.name}
               className="flex justify-between items-center bg-muted/60 border border-border px-3 py-2 rounded-md"
             >
-              <span className="text-sm">{group}</span>
+              <span className="text-sm">{group.name}</span>
               <span className="text-xs text-muted-foreground">
                 {displaySets} set{isPlural ? 's' : ''}
               </span>

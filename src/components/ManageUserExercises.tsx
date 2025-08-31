@@ -26,11 +26,8 @@ function UserExerciseSkeleton() {
 
 export function ManageUserExercises() {
   const { data: userExercises, isLoading } = useQuery(
-    convexQuery(api.exercises.searchExercises, { q: '' }),
+    convexQuery(api.exercises.listUserExercises, {}),
   )
-
-  const filteredUserExercises =
-    userExercises?.filter((ex) => ex.kind === 'user') || []
 
   return (
     <div className="space-y-4">
@@ -56,14 +53,14 @@ export function ManageUserExercises() {
             <UserExerciseSkeleton key={i} />
           ))}
         </div>
-      ) : filteredUserExercises.length === 0 ? (
+      ) : (userExercises?.length ?? 0) === 0 ? (
         <div className="text-sm opacity-70 text-center py-8">
           No custom exercises yet. Click &quot;Add Exercise&quot; to create your
           first one.
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredUserExercises.map((exercise) => (
+          {(userExercises ?? []).map((exercise) => (
             <div
               key={exercise._id}
               className="rounded-lg border border-border bg-card p-3 flex items-center justify-between"

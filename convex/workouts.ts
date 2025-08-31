@@ -314,11 +314,18 @@ export const getLastExercisePerformance = query({
 export const getWorkoutAnalytics = query({
   args: { workoutId: v.id('workouts') },
   returns: v.object({
-    muscleGroups: v.record(v.string(), v.number()),
+    muscleGroups: v.array(
+      v.object({
+        name: v.string(),
+        sets: v.number(),
+      }),
+    ),
   }),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Not authenticated')
+    if (!userId) {
+      throw new Error('Not authenticated')
+    }
 
     const workout = await ctx.db.get(args.workoutId)
     if (!workout || workout.userId !== userId) {
@@ -326,44 +333,19 @@ export const getWorkoutAnalytics = query({
     }
 
     // Get all exercises referenced in the workout
-    const globalExerciseIds = workout.items
-      .filter((item) => item.exercise.kind === 'global')
-      .map((item) => item.exercise.id)
+    const exerciseIds: Id<'globalExercises' | 'userExercises'>[] = []
 
-    const userExerciseIds = workout.items
-      .filter((item) => item.exercise.kind === 'user')
-      .map((item) => item.exercise.id)
+    for (const item of workout.items) {
+      exerciseIds.push(item.exercise.id)
+    }
 
-    const [globalExercises, userExercises] = await Promise.all([
-      Promise.all(globalExerciseIds.map((id) => ctx.db.get(id))),
-      Promise.all(userExerciseIds.map((id) => ctx.db.get(id))),
-    ])
+    const exercises = await Promise.all(exerciseIds.map((id) => ctx.db.get(id)))
 
-    // Create exercise map
-    const exerciseMap = new Map<
-      string,
-      { name: string; primaryMuscle: string; secondaryMuscles: string[] }
-    >()
-
-    globalExercises.forEach((exercise) => {
-      if (exercise) {
-        exerciseMap.set(`global:${exercise._id}`, {
-          name: exercise.name,
-          primaryMuscle: exercise.primaryMuscle,
-          secondaryMuscles: exercise.secondaryMuscles,
-        })
-      }
-    })
-
-    userExercises.forEach((exercise) => {
-      if (exercise) {
-        exerciseMap.set(`user:${exercise._id}`, {
-          name: exercise.name,
-          primaryMuscle: exercise.primaryMuscle,
-          secondaryMuscles: exercise.secondaryMuscles,
-        })
-      }
-    })
+    const exerciseMap = new Map(
+      exercises
+        .filter((exercise) => exercise !== null)
+        .map((exercise) => [exercise._id, exercise]),
+    )
 
     // Calculate muscle group counts
     const muscleGroups: Record<string, number> = {
@@ -401,10 +383,11 @@ export const getWorkoutAnalytics = query({
     }
 
     for (const item of workout.items) {
-      const exerciseKey = `${item.exercise.kind}:${item.exercise.id}`
-      const exercise = exerciseMap.get(exerciseKey)
+      const exercise = exerciseMap.get(item.exercise.id)
 
-      if (!exercise) continue
+      if (!exercise) {
+        continue
+      }
 
       const setCount = item.sets.length
 
@@ -423,6 +406,12 @@ export const getWorkoutAnalytics = query({
       }
     }
 
-    return { muscleGroups }
+    // Sort muscle groups by set count in descending order and return as array
+    const sortedMuscleGroups = Object.entries(muscleGroups)
+      .filter(([, sets]) => sets > 0)
+      .sort(([, a], [, b]) => b - a)
+      .map(([name, sets]) => ({ name, sets }))
+
+    return { muscleGroups: sortedMuscleGroups }
   },
 })

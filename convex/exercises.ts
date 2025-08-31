@@ -141,6 +141,32 @@ export const getAllExercises = query({
   },
 })
 
+export const listUserExercises = query({
+  returns: v.array(
+    v.object({
+      _id: v.id('userExercises'),
+      name: v.string(),
+      primaryMuscle: v.string(),
+    }),
+  ),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx)
+    if (!userId) throw new Error('Not authenticated')
+
+    const userExercises = await ctx.db
+      .query('userExercises')
+      .withIndex('by_user_and_name', (ix) => ix.eq('userId', userId))
+      .order('asc')
+      .collect()
+
+    return userExercises.map((u) => ({
+      _id: u._id,
+      name: u.name,
+      primaryMuscle: u.primaryMuscle,
+    }))
+  },
+})
+
 export const createUserExercise = mutation({
   args: {
     name: v.string(),

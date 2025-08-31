@@ -20,6 +20,18 @@ No test framework currently configured. Use Vitest if adding tests.
 - **Imports**: Group by external libraries first, then internal with `@/` path alias
 - **File extensions**: `.tsx` for React components, `.ts` for utilities/hooks
 
+### Personal Style Rules
+
+- Never use shorthand if statements
+
+Good
+if (isUserLoggedIn) {
+// doSomething
+}
+
+Bad
+if (isUserLoggedIn) // doSomething
+
 ### TypeScript
 
 - **Strict mode**: Enabled with unused locals/parameters checks
@@ -36,7 +48,7 @@ No test framework currently configured. Use Vitest if adding tests.
 
 ### Data Fetching
 
-- **Queries**: Always use `useQuery` hook from Convex for data fetching
+- **Queries**: Always use `useQuery` hook from Convex for data fetching unless specifically told not to. Leave comments as to why so you can read for later
 - **Loading states**: Always implement skeleton loaders where possible instead of basic loading text
 - **Error handling**: Properly handle error states from query hooks
 
@@ -55,7 +67,7 @@ No test framework currently configured. Use Vitest if adding tests.
 
 ## Cursor Rules
 
-Follow all Convex guidelines from `.cursor/rules/convex_rules.mdc`:
+Follow all Convex guidelines from `.cursor/convex_rules.mdc`:
 
 - Use new function syntax for Convex functions
 - Always include argument and return validators
