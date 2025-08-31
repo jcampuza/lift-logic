@@ -45,6 +45,7 @@ export default defineSchema({
     userId: v.id('users'),
     date: v.number(),
     notes: v.optional(v.string()),
+    updatedAt: v.optional(v.number()),
     items: v.array(
       v.object({
         exercise: v.union(

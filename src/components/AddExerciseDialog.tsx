@@ -130,13 +130,20 @@ export function AddExerciseDialog({
                   }
                   const it = r as ResultItem
                   return (
-                    <div className="flex items-center gap-3">
-                      <span className="flex-1">{it.name}</span>
-                      {it.primaryMuscle && (
-                        <span className="text-xs opacity-60 flex-shrink-0">
-                          {it.primaryMuscle}
-                        </span>
-                      )}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <span className="flex-1">{it.name}</span>
+                        {it.primaryMuscle && (
+                          <span className="text-xs opacity-60 flex-shrink-0">
+                            {it.primaryMuscle}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground italic">
+                        {it.kind === 'global'
+                          ? 'System exercise'
+                          : 'Added by you'}
+                      </span>
                     </div>
                   )
                 }}

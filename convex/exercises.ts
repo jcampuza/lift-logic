@@ -2,7 +2,10 @@ import { getAuthUserId } from '@convex-dev/auth/server'
 import { v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { internalMutation, mutation, query } from './_generated/server'
-import { GLOBAL_EXERCISE_PRESETS } from './exercisePresets'
+import {
+  GLOBAL_EXERCISE_PRESETS_v1,
+  GLOBAL_EXERCISE_PRESETS_v2,
+} from './exercisePresets'
 
 export const searchExercises = query({
   args: { q: v.optional(v.string()) },
@@ -260,7 +263,7 @@ export const seedGlobalExercises = internalMutation({
       return null
     }
 
-    for (const preset of GLOBAL_EXERCISE_PRESETS) {
+    for (const preset of GLOBAL_EXERCISE_PRESETS_v1) {
       await ctx.db.insert('globalExercises', {
         name: preset.name,
         primaryMuscle: preset.primaryMuscle,
@@ -268,6 +271,60 @@ export const seedGlobalExercises = internalMutation({
       })
     }
     return null
+  },
+})
+
+export const migrateGlobalExercisesv1 = internalMutation({
+  args: {},
+  returns: v.array(
+    v.object({
+      oldName: v.string(),
+      newName: v.string(),
+    }),
+  ),
+  handler: async (ctx) => {
+    const updatedOldNames: { oldName: string; newName: string }[] = []
+
+    for (const preset of GLOBAL_EXERCISE_PRESETS_v2) {
+      const oldName = (preset as any).oldName
+
+      if (typeof oldName === 'string' && oldName.trim() !== '') {
+        const existing = await ctx.db
+          .query('globalExercises')
+          .withIndex('by_name', (ix) => ix.eq('name', oldName))
+          .first()
+
+        if (existing) {
+          await ctx.db.patch(existing._id, {
+            name: preset.name,
+            primaryMuscle: preset.primaryMuscle,
+            secondaryMuscles: preset.secondaryMuscles.slice(),
+          })
+          updatedOldNames.push({ oldName, newName: preset.name })
+          continue
+        }
+      }
+
+      // If no oldName or old entry not found, insert or update by new name
+      const existsByName = await ctx.db
+        .query('globalExercises')
+        .withIndex('by_name', (ix) => ix.eq('name', preset.name))
+        .first()
+
+      if (!existsByName) {
+        await ctx.db.insert('globalExercises', {
+          name: preset.name,
+          primaryMuscle: preset.primaryMuscle,
+          secondaryMuscles: preset.secondaryMuscles.slice(),
+        })
+      } else {
+        await ctx.db.patch(existsByName._id, {
+          primaryMuscle: preset.primaryMuscle,
+          secondaryMuscles: preset.secondaryMuscles.slice(),
+        })
+      }
+    }
+    return updatedOldNames
   },
 })
 

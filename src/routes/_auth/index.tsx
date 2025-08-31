@@ -76,7 +76,7 @@ function Content() {
 function Home() {
   return (
     <>
-      <header className="sticky top-0 z-10 bg-background px-4 py-3 border-b border-border flex flex-row justify-between items-center">
+      <header className="sticky top-0 z-40 bg-background px-4 py-3 border-b border-border flex flex-row justify-between items-center">
         Lift PR&apos;s
         <SettingsLink />
       </header>

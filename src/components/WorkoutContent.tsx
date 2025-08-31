@@ -21,6 +21,7 @@ type WorkoutData = {
   _id: Id<'workouts'>
   _creationTime: number
   date: number
+  updatedAt?: number
   notes?: string
   items: Array<{
     exercise: ExerciseRef
@@ -63,7 +64,7 @@ export default function WorkoutContent({
   // Sync status state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isSyncing: false,
-    lastSynced: initialWorkout._creationTime,
+    lastSynced: initialWorkout.updatedAt ?? initialWorkout._creationTime,
     error: null,
   })
 
@@ -165,7 +166,7 @@ export default function WorkoutContent({
   return (
     <div className="pb-24 max-w-xl mx-auto">
       <header className="sticky top-0 z-[60] bg-background border-b border-border px-4 py-3 mb-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mb-2">
           <Link
             to="/"
             className="p-2 rounded-md hover:bg-muted transition-colors"
@@ -174,24 +175,6 @@ export default function WorkoutContent({
           </Link>
           <div className="flex-1">
             <h1 className="text-xl font-semibold">Workout Details</h1>
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-muted-foreground">
-                {new Date(initialWorkout.date).toLocaleDateString()}
-              </p>
-              {items.length > 0 && (
-                <span className="text-xs opacity-60">•</span>
-              )}
-              {items.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {items.reduce((total, item) => total + item.sets.length, 0)}{' '}
-                  total sets
-                </p>
-              )}
-              <SyncStatusIndicator
-                syncStatus={syncStatus}
-                onRetry={retrySync}
-              />
-            </div>
           </div>
           <div className="flex gap-2">
             <WorkoutDropdown
@@ -200,6 +183,23 @@ export default function WorkoutContent({
               contentClassName="z-[70]"
             />
           </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">
+              {new Date(initialWorkout.date).toLocaleDateString()}
+            </p>
+            {items.length > 0 && (
+              <>
+                <span className="text-xs opacity-60">•</span>
+                <p className="text-xs text-muted-foreground">
+                  {items.reduce((total, item) => total + item.sets.length, 0)}{' '}
+                  total sets
+                </p>
+              </>
+            )}
+          </div>
+          <SyncStatusIndicator syncStatus={syncStatus} onRetry={retrySync} />
         </div>
       </header>
 

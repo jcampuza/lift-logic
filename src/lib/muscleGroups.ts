@@ -21,6 +21,8 @@ export const MUSCLE_GROUPS = {
   LATS: 'Lats',
   UPPER_CHEST: 'Upper Chest',
   ABS: 'Abs',
+  CORE: 'Core',
+  HIP_FLEXORS: 'Hip Flexors',
 } as const
 
 export const muscleGroupOptions = Object.values(MUSCLE_GROUPS).sort()
