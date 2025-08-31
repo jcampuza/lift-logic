@@ -45,7 +45,7 @@ export default defineSchema({
     userId: v.id('users'),
     date: v.number(),
     notes: v.optional(v.string()),
-    updatedAt: v.optional(v.number()),
+    updatedAt: v.number(),
     items: v.array(
       v.object({
         exercise: v.union(
@@ -67,5 +67,7 @@ export default defineSchema({
         ),
       }),
     ),
-  }).index('by_user_and_date', ['userId', 'date']),
+  })
+    .index('by_user_and_date', ['userId', 'date'])
+    .index('by_user_and_updatedAt', ['userId', 'updatedAt']),
 })

@@ -1,7 +1,7 @@
 import { getAuthUserId } from '@convex-dev/auth/server'
 import { v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
-import { mutation, query, internalMutation } from './_generated/server'
+import { mutation, query } from './_generated/server'
 
 export const listWorkouts = query({
   args: {},
@@ -186,18 +186,6 @@ export const updateWorkout = mutation({
     })
 
     return null
-  },
-})
-
-export const backfillUpdatedAt = internalMutation({
-  args: {},
-  handler: async (ctx) => {
-    const workouts = await ctx.db.query('workouts').collect()
-    for (const w of workouts) {
-      if (w.updatedAt === undefined) {
-        await ctx.db.patch(w._id, { updatedAt: w._creationTime })
-      }
-    }
   },
 })
 

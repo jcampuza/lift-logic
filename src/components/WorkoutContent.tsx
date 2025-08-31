@@ -21,7 +21,7 @@ type WorkoutData = {
   _id: Id<'workouts'>
   _creationTime: number
   date: number
-  updatedAt?: number
+  updatedAt: number
   notes?: string
   items: Array<{
     exercise: ExerciseRef
@@ -64,7 +64,7 @@ export default function WorkoutContent({
   // Sync status state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isSyncing: false,
-    lastSynced: initialWorkout.updatedAt ?? initialWorkout._creationTime,
+    lastSynced: initialWorkout.updatedAt,
     error: null,
   })
 
