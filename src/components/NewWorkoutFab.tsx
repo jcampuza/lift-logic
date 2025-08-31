@@ -10,7 +10,7 @@ export function NewWorkoutFab() {
   const [creating, setCreating] = useState(false)
   return (
     <button
-      className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl shadow-[0_6px_24px_rgba(0,0,0,0.35)] disabled:opacity-60"
+      className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-3xl shadow-[0_6px_24px_rgba(0,0,0,0.35)] disabled:opacity-60"
       disabled={creating}
       onClick={async () => {
         try {
