@@ -10,13 +10,13 @@ export const Route = createFileRoute('/signin')({
   component: SignIn,
 })
 
-type SignInState = "idle" | "loading" | "error";
+type SignInState = 'idle' | 'loading' | 'error'
 
 function SignIn() {
   const { signIn } = useAuthActions()
   const { isAuthenticated, isLoading } = useConvexAuth()
-  const [signInState, setSignInState] = useState<SignInState>("idle");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [signInState, setSignInState] = useState<SignInState>('idle')
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
   if (isLoading) {
     return null
@@ -27,21 +27,21 @@ function SignIn() {
   }
 
   const handleSignIn = async () => {
-    setSignInState("loading");
-    setErrorMessage("");
+    setSignInState('loading')
+    setErrorMessage('')
 
     try {
-      await signIn("google");
+      await signIn('google')
     } catch {
-      setErrorMessage("Failed to sign in. Please try again.");
-      setSignInState("error");
+      setErrorMessage('Failed to sign in. Please try again.')
+      setSignInState('error')
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="relative w-20 h-20">
@@ -55,10 +55,10 @@ function SignIn() {
 
           {/* App Title */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-3">
+            <h1 className="text-3xl font-bold text-foreground mb-3">
               Workout Companion
             </h1>
-            <p className="text-slate-300 text-lg leading-relaxed">
+            <p className="text-muted-foreground text-lg leading-relaxed">
               Track your workouts, log your sets, and watch your progress grow.
               Simple, powerful workout tracking for every fitness journey.
             </p>
@@ -66,31 +66,31 @@ function SignIn() {
 
           {/* Sign In Button */}
           <Button
-            className="w-full h-12 text-base font-medium bg-white hover:bg-gray-100 text-black border-0 shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02]"
-            variant="outline"
+            className="w-full h-12 text-base font-medium gap-2"
+            variant="secondary"
             type="button"
             onClick={handleSignIn}
-            disabled={signInState === "loading"}
+            disabled={signInState === 'loading'}
           >
-            {signInState === "loading" ? (
+            {signInState === 'loading' ? (
               <Loader2 className="mr-3 h-5 w-5 animate-spin" />
             ) : (
               <GoogleLogo className="mr-3 h-5 w-5" />
             )}
-            {signInState === "loading"
-              ? "Signing in..."
-              : "Sign in with Google"}
+            {signInState === 'loading'
+              ? 'Signing in...'
+              : 'Sign in with Google'}
           </Button>
 
           {/* Error Message */}
           {errorMessage && (
-            <p className="text-center text-red-400 text-sm mt-3">
+            <p className="text-center text-destructive text-sm mt-3">
               {errorMessage}
             </p>
           )}
 
           {/* Footer Text */}
-          <p className="text-center text-slate-400 text-sm mt-6">
+          <p className="text-center text-muted-foreground text-sm mt-6">
             Start tracking your workouts today
           </p>
         </div>

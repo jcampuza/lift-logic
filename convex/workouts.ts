@@ -2,6 +2,9 @@ import { getAuthUserId } from '@convex-dev/auth/server'
 import { v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { mutation, query } from './_generated/server'
+import { MUSCLE_GROUP_MAPPING } from '../src/lib/muscleGroups'
+import { query as queryFn } from './_generated/server'
+import { v as validator } from 'convex/values'
 
 export const listWorkouts = query({
   args: {},
@@ -347,39 +350,33 @@ export const getWorkoutAnalytics = query({
         .map((exercise) => [exercise._id, exercise]),
     )
 
+    // Fetch user preference for including half sets
+    const preferences = await ctx.db
+      .query('userPreferences')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .first()
+    const includeHalfSets = preferences?.includeHalfSets ?? true
+
     // Calculate muscle group counts
+    // Split arms and legs into more specific groups (Biceps/Triceps, Quads/Hamstrings)
     const muscleGroups: Record<string, number> = {
       Chest: 0,
       Shoulders: 0,
       Back: 0,
-      Arms: 0,
-      Legs: 0,
+      Biceps: 0,
+      Triceps: 0,
+      Forearms: 0,
+      Quads: 0,
+      Hamstrings: 0,
+      Glutes: 0,
+      Calves: 0,
       Core: 0,
+      Abs: 0,
     }
 
     // Simple broad muscle group mapping (inline to avoid import issues in Convex)
     const getBroadGroup = (muscle: string): string | null => {
-      const mapping: Record<string, string> = {
-        Chest: 'Chest',
-        'Upper Chest': 'Chest',
-        Shoulders: 'Shoulders',
-        'Front Deltoids': 'Shoulders',
-        'Rear Deltoids': 'Shoulders',
-        'Lateral Deltoids': 'Shoulders',
-        Back: 'Back',
-        Lats: 'Back',
-        Traps: 'Back',
-        'Lower Back': 'Back',
-        Biceps: 'Arms',
-        Triceps: 'Arms',
-        Forearms: 'Arms',
-        Quads: 'Legs',
-        Hamstrings: 'Legs',
-        Glutes: 'Legs',
-        Calves: 'Legs',
-        Abs: 'Core',
-      }
-      return mapping[muscle] || null
+      return MUSCLE_GROUP_MAPPING[muscle] || null
     }
 
     for (const item of workout.items) {
@@ -397,11 +394,13 @@ export const getWorkoutAnalytics = query({
         muscleGroups[primaryBroad] += setCount
       }
 
-      // Count sets for secondary muscles (with reduced weight)
-      for (const secondaryMuscle of exercise.secondaryMuscles) {
-        const secondaryBroad = getBroadGroup(secondaryMuscle)
-        if (secondaryBroad && secondaryBroad !== primaryBroad) {
-          muscleGroups[secondaryBroad] += setCount * 0.5
+      if (includeHalfSets) {
+        // Count sets for secondary muscles (with reduced weight)
+        for (const secondaryMuscle of exercise.secondaryMuscles) {
+          const secondaryBroad = getBroadGroup(secondaryMuscle)
+          if (secondaryBroad && secondaryBroad !== primaryBroad) {
+            muscleGroups[secondaryBroad] += setCount * 0.5
+          }
         }
       }
     }

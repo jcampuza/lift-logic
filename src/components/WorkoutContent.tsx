@@ -305,16 +305,25 @@ function SyncStatusIndicator({
   }
 
   const timeAgo = Date.now() - syncStatus.lastSynced
-  const minutes = Math.floor(timeAgo / 60000)
-  const seconds = Math.floor((timeAgo % 60000) / 1000)
+
+  const seconds = Math.floor(timeAgo / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
 
   let timeText = ''
-  if (minutes > 0) {
-    timeText = `${minutes}m ago`
-  } else if (seconds > 5) {
-    timeText = `${seconds}s ago`
-  } else {
+  if (seconds < 6) {
     timeText = 'now'
+  } else if (seconds < 60) {
+    timeText = `${seconds}s ago`
+  } else if (minutes < 60) {
+    timeText = `${minutes}m ago`
+  } else if (hours < 48) {
+    // Show hours up to 48 hours as "Xh ago"
+    timeText = `${hours}h ago`
+  } else {
+    // Older than ~2 days, show in days
+    timeText = `${days}d ago`
   }
 
   return (

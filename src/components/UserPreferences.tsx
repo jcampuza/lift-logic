@@ -1,30 +1,60 @@
 'use client'
 
-import { useMutation } from 'convex/react'
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { useState } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
+import { useRef, useState } from 'react'
 import { api } from '../../convex/_generated/api'
 import { Button } from './ui/button'
+import { Switch } from './ui/switch'
 
 export function UserPreferences() {
-  const { data } = useQuery(convexQuery(api.exercises.getUserPreferences, {}))
-  const updatePreferences = useMutation(api.exercises.updateUserPreferences)
+  const { data, isLoading } = useQuery(
+    convexQuery(api.exercises.getUserPreferences, {}),
+  )
+
+  let timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const updatePreferences = useMutation({
+    mutationFn: useConvexMutation(api.exercises.updateUserPreferences),
+    onSuccess: () => {
+      setStatus('Preferences saved')
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+      timeoutRef.current = setTimeout(() => setStatus(null), 2000)
+    },
+    onError: () => {
+      setStatus('Failed to save preferences')
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+      timeoutRef.current = setTimeout(() => setStatus(null), 2000)
+    },
+  })
+
   const [status, setStatus] = useState<string | null>(null)
 
   const handleWeightUnitChange = async (weightUnit: 'lbs' | 'kg') => {
-    try {
-      await updatePreferences({ weightUnit })
-      setStatus('Preferences saved')
-      setTimeout(() => setStatus(null), 2000)
-    } catch (error) {
-      console.error('Failed to update preferences:', error)
-      setStatus('Failed to save preferences')
-      setTimeout(() => setStatus(null), 2000)
-    }
+    updatePreferences.mutate({ weightUnit })
   }
 
   const weightUnit = data?.weightUnit ?? ''
+  const includeHalfSets = data?.includeHalfSets ?? true
+
+  const handleIncludeHalfSetsChange = async (value: boolean) => {
+    updatePreferences.mutate({ includeHalfSets: value })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-4">
+        <div className="animate-pulse">
+          <div className="h-4 bg-muted rounded-md w-24 mb-2"></div>
+          <div className="h-10 bg-muted rounded-md w-32"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -55,6 +85,21 @@ export function UserPreferences() {
           >
             Kilograms (kg)
           </Button>
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium opacity-90 block mb-2">
+          Count secondary muscles as half sets
+        </label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={includeHalfSets}
+            onCheckedChange={handleIncludeHalfSetsChange}
+          />
+          <span className="text-xs opacity-70">
+            When enabled, secondary muscles contribute 0.5 sets to analytics.
+          </span>
         </div>
       </div>
 

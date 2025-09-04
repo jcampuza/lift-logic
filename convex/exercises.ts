@@ -300,6 +300,7 @@ export const seedGlobalExercises = internalMutation({
 export const getUserPreferences = query({
   returns: v.object({
     weightUnit: v.union(v.literal('lbs'), v.literal('kg')),
+    includeHalfSets: v.boolean(),
   }),
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx)
@@ -310,9 +311,10 @@ export const getUserPreferences = query({
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .first()
 
-    // Default to lbs if no preferences exist
+    // Default to lbs and includeHalfSets=true if no preferences exist
     return {
       weightUnit: preferences?.weightUnit ?? 'lbs',
+      includeHalfSets: preferences?.includeHalfSets ?? true,
     }
   },
 })
@@ -393,7 +395,8 @@ export const getUserExercise = query({
 
 export const updateUserPreferences = mutation({
   args: {
-    weightUnit: v.union(v.literal('lbs'), v.literal('kg')),
+    weightUnit: v.optional(v.union(v.literal('lbs'), v.literal('kg'))),
+    includeHalfSets: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx)
@@ -404,15 +407,17 @@ export const updateUserPreferences = mutation({
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .first()
 
+    const doc = {
+      userId,
+      weightUnit: args.weightUnit ?? existing?.weightUnit ?? 'lbs',
+      includeHalfSets:
+        args.includeHalfSets ?? existing?.includeHalfSets ?? true,
+    }
+
     if (existing) {
-      await ctx.db.patch(existing._id, {
-        weightUnit: args.weightUnit,
-      })
+      await ctx.db.patch(existing._id, doc)
     } else {
-      await ctx.db.insert('userPreferences', {
-        userId,
-        weightUnit: args.weightUnit,
-      })
+      await ctx.db.insert('userPreferences', doc)
     }
   },
 })

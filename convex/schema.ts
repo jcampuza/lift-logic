@@ -12,6 +12,7 @@ export default defineSchema({
   userPreferences: defineTable({
     userId: v.id('users'),
     weightUnit: v.union(v.literal('lbs'), v.literal('kg')),
+    includeHalfSets: v.optional(v.boolean()),
     // Future preferences can be added here
   }).index('by_user', ['userId']),
 

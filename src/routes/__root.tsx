@@ -7,8 +7,6 @@ import {
 import { QueryClient } from '@tanstack/react-query'
 import * as React from 'react'
 import appCss from '@/styles/app.css?url'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from 'convex/_generated/api'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -56,11 +54,6 @@ export const Route = createRootRouteWithContext<{
   }),
   notFoundComponent: () => <div>Route not found</div>,
   component: RootComponent,
-  beforeLoad: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.auth.isAuthenticated, {}),
-    )
-  },
 })
 
 function RootComponent() {
