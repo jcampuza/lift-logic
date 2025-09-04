@@ -3,8 +3,6 @@ import { v } from 'convex/values'
 import type { Id } from './_generated/dataModel'
 import { mutation, query } from './_generated/server'
 import { MUSCLE_GROUP_MAPPING } from '../src/lib/muscleGroups'
-import { query as queryFn } from './_generated/server'
-import { v as validator } from 'convex/values'
 
 export const listWorkouts = query({
   args: {},
