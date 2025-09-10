@@ -1,49 +1,49 @@
-'use client'
+'use client';
 
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
-import { useRef, useState } from 'react'
-import { api } from '../../convex/_generated/api'
-import { Button } from './ui/button'
-import { Switch } from './ui/switch'
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { convexQuery, useConvexMutation } from '@convex-dev/react-query';
+import { useRef, useState } from 'react';
+import { api } from '../../convex/_generated/api';
+import { Button } from './ui/button';
+import { Switch } from './ui/switch';
 
 export function UserPreferences() {
   const { data, isLoading } = useQuery(
     convexQuery(api.exercises.getUserPreferences, {}),
-  )
+  );
 
-  let timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  let timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const updatePreferences = useMutation({
     mutationFn: useConvexMutation(api.exercises.updateUserPreferences),
     onSuccess: () => {
-      setStatus('Preferences saved')
+      setStatus('Preferences saved');
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
-      timeoutRef.current = setTimeout(() => setStatus(null), 2000)
+      timeoutRef.current = setTimeout(() => setStatus(null), 2000);
     },
     onError: () => {
-      setStatus('Failed to save preferences')
+      setStatus('Failed to save preferences');
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
-      timeoutRef.current = setTimeout(() => setStatus(null), 2000)
+      timeoutRef.current = setTimeout(() => setStatus(null), 2000);
     },
-  })
+  });
 
-  const [status, setStatus] = useState<string | null>(null)
+  const [status, setStatus] = useState<string | null>(null);
 
   const handleWeightUnitChange = async (weightUnit: 'lbs' | 'kg') => {
-    updatePreferences.mutate({ weightUnit })
-  }
+    updatePreferences.mutate({ weightUnit });
+  };
 
-  const weightUnit = data?.weightUnit ?? ''
-  const includeHalfSets = data?.includeHalfSets ?? true
+  const weightUnit = data?.weightUnit ?? '';
+  const includeHalfSets = data?.includeHalfSets ?? true;
 
   const handleIncludeHalfSetsChange = async (value: boolean) => {
-    updatePreferences.mutate({ includeHalfSets: value })
-  }
+    updatePreferences.mutate({ includeHalfSets: value });
+  };
 
   if (isLoading) {
     return (
@@ -53,7 +53,7 @@ export function UserPreferences() {
           <div className="h-10 bg-muted rounded-md w-32"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -113,7 +113,7 @@ export function UserPreferences() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default UserPreferences
+export default UserPreferences;

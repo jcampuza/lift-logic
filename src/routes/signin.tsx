@@ -1,42 +1,42 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router'
-import { useAuthActions } from '@convex-dev/auth/react'
-import { useConvexAuth } from 'convex/react'
-import { useState } from 'react'
-import { GoogleLogo } from '@/components/GoogleLogo'
-import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { createFileRoute, Navigate } from '@tanstack/react-router';
+import { useAuthActions } from '@convex-dev/auth/react';
+import { useConvexAuth } from 'convex/react';
+import { useState } from 'react';
+import { GoogleLogo } from '@/components/GoogleLogo';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 export const Route = createFileRoute('/signin')({
   component: SignIn,
-})
+});
 
-type SignInState = 'idle' | 'loading' | 'error'
+type SignInState = 'idle' | 'loading' | 'error';
 
 function SignIn() {
-  const { signIn } = useAuthActions()
-  const { isAuthenticated, isLoading } = useConvexAuth()
-  const [signInState, setSignInState] = useState<SignInState>('idle')
-  const [errorMessage, setErrorMessage] = useState<string>('')
+  const { signIn } = useAuthActions();
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const [signInState, setSignInState] = useState<SignInState>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   if (isLoading) {
-    return null
+    return null;
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" />
+    return <Navigate to="/" />;
   }
 
   const handleSignIn = async () => {
-    setSignInState('loading')
-    setErrorMessage('')
+    setSignInState('loading');
+    setErrorMessage('');
 
     try {
-      await signIn('google')
+      await signIn('google');
     } catch {
-      setErrorMessage('Failed to sign in. Please try again.')
-      setSignInState('error')
+      setErrorMessage('Failed to sign in. Please try again.');
+      setSignInState('error');
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -96,5 +96,5 @@ function SignIn() {
         </div>
       </div>
     </div>
-  )
+  );
 }

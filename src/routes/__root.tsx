@@ -3,13 +3,14 @@ import {
   HeadContent,
   Scripts,
   Outlet,
-} from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
-import * as React from 'react'
-import appCss from '@/styles/app.css?url'
+} from '@tanstack/react-router';
+import { QueryClient } from '@tanstack/react-query';
+import * as React from 'react';
+import appCss from '@/styles/app.css?url';
+import { Toaster } from '@/components/ui/sonner';
 
 export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient
+  queryClient: QueryClient;
 }>()({
   head: () => ({
     meta: [
@@ -54,14 +55,14 @@ export const Route = createRootRouteWithContext<{
   }),
   notFoundComponent: () => <div>Route not found</div>,
   component: RootComponent,
-})
+});
 
 function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
     </RootDocument>
-  )
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -72,8 +73,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster richColors position="top-center" />
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

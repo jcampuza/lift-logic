@@ -1,32 +1,35 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query';
+import { convexQuery } from '@convex-dev/react-query';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { CreateUserExercise, type UserExerciseData } from './CreateUserExercise'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+} from '@/components/ui/dialog';
+import {
+  CreateUserExercise,
+  type UserExerciseData,
+} from './CreateUserExercise';
+import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 
 export function EditUserExerciseDialog({
   exerciseId,
   children,
   onUpdated,
 }: {
-  exerciseId: Id<'userExercises'>
-  children: React.ReactNode
-  onUpdated?: (name: string) => void
+  exerciseId: Id<'userExercises'>;
+  children: React.ReactNode;
+  onUpdated?: (name: string) => void;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const { data: exercise } = useQuery(
     convexQuery(api.exercises.getUserExercise, { exerciseId }),
-  )
+  );
 
   if (!exercise) {
     return (
@@ -38,7 +41,7 @@ export function EditUserExerciseDialog({
           </DialogHeader>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   const exerciseData: UserExerciseData = {
@@ -48,7 +51,7 @@ export function EditUserExerciseDialog({
     secondaryMuscles: exercise.secondaryMuscles,
     notes: exercise.notes,
     aliases: exercise.aliases,
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -61,12 +64,12 @@ export function EditUserExerciseDialog({
           mode="edit"
           editData={exerciseData}
           onUpdated={(name) => {
-            onUpdated?.(name)
-            setOpen(false)
+            onUpdated?.(name);
+            setOpen(false);
           }}
           className="mt-4"
         />
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,56 +1,56 @@
-import { ArrowLeftIcon } from 'lucide-react'
-import { useMutation } from 'convex/react'
-import { Link } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
-import AddExerciseDialog from './AddExerciseDialog'
-import AddExerciseFab from './AddExerciseFab'
-import MuscleGroupStats from './MuscleGroupStats'
-import WorkoutDropdown from './WorkoutDropdown'
-import useSingleFlight from '../hooks/useSingleFlight'
-import useDebounce from '../hooks/useDebounce'
-import { api } from '../../convex/_generated/api'
+import { ArrowLeftIcon } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { Link } from '@tanstack/react-router';
+import { useCallback, useState } from 'react';
+import AddExerciseDialog from './AddExerciseDialog';
+import AddExerciseFab from './AddExerciseFab';
+import MuscleGroupStats from './MuscleGroupStats';
+import WorkoutDropdown from './WorkoutDropdown';
+import useSingleFlight from '../hooks/useSingleFlight';
+import useDebounce from '../hooks/useDebounce';
+import { api } from '../../convex/_generated/api';
 import ExerciseEditor, {
   type WorkoutItemDraft,
   type ExerciseRef,
-} from './ExerciseEditor'
-import type { Id } from '../../convex/_generated/dataModel'
+} from './ExerciseEditor';
+import type { Id } from '../../convex/_generated/dataModel';
 
-type LocalWorkoutItemDraft = WorkoutItemDraft
+type LocalWorkoutItemDraft = WorkoutItemDraft;
 
 type WorkoutData = {
-  _id: Id<'workouts'>
-  _creationTime: number
-  date: number
-  updatedAt: number
-  notes?: string
+  _id: Id<'workouts'>;
+  _creationTime: number;
+  date: number;
+  updatedAt: number;
+  notes?: string;
   items: Array<{
-    exercise: ExerciseRef
+    exercise: ExerciseRef;
     exerciseData: {
-      name: string
-      primaryMuscle?: string
-    }
-    notes?: string
-    sets: Array<{ reps: number; weight?: number }>
-  }>
-}
+      name: string;
+      primaryMuscle?: string;
+    };
+    notes?: string;
+    sets: Array<{ reps: number; weight?: number }>;
+  }>;
+};
 
 type SyncStatus = {
-  isSyncing: boolean
-  lastSynced: number
-  error: string | null
-}
+  isSyncing: boolean;
+  lastSynced: number;
+  error: string | null;
+};
 
 type WorkoutContentProps = {
-  initialWorkout: WorkoutData
-}
+  initialWorkout: WorkoutData;
+};
 
 export default function WorkoutContent({
   initialWorkout,
 }: WorkoutContentProps) {
-  const updateWorkout = useMutation(api.workouts.updateWorkout)
+  const updateWorkout = useMutation(api.workouts.updateWorkout);
 
   // Local state initialized once from server data
-  const [notes, setNotes] = useState(initialWorkout.notes ?? '')
+  const [notes, setNotes] = useState(initialWorkout.notes ?? '');
   const [items, setItems] = useState<Array<LocalWorkoutItemDraft>>(
     initialWorkout.items.map((item) => ({
       exercise: item.exercise,
@@ -58,15 +58,15 @@ export default function WorkoutContent({
       notes: item.notes ?? '',
       sets: item.sets,
     })),
-  )
-  const [showAddDialog, setShowAddDialog] = useState(false)
+  );
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   // Sync status state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isSyncing: false,
     lastSynced: initialWorkout.updatedAt,
     error: null,
-  })
+  });
 
   // Single flight sync function
   const performSync = useCallback(
@@ -85,44 +85,44 @@ export default function WorkoutContent({
             notes: it.notes.trim() === '' ? undefined : it.notes.trim(),
             sets: it.sets,
           })),
-      }
+      };
 
-      setSyncStatus((prev) => ({ ...prev, isSyncing: true, error: null }))
+      setSyncStatus((prev) => ({ ...prev, isSyncing: true, error: null }));
 
       try {
-        await updateWorkout(payload)
+        await updateWorkout(payload);
         setSyncStatus((prev) => ({
           ...prev,
           isSyncing: false,
           lastSynced: Date.now(),
           error: null,
-        }))
+        }));
       } catch (error) {
-        console.error('Failed to save workout:', error)
+        console.error('Failed to save workout:', error);
         setSyncStatus((prev) => ({
           ...prev,
           isSyncing: false,
           error: error instanceof Error ? error.message : 'Sync failed',
-        }))
-        throw error // Re-throw to let useSingleFlight handle it
+        }));
+        throw error; // Re-throw to let useSingleFlight handle it
       }
     },
     [initialWorkout._id, initialWorkout.date, updateWorkout],
-  )
+  );
 
   // Wrap with single flight to prevent concurrent saves
-  const singleFlightSync = useSingleFlight(performSync)
+  const singleFlightSync = useSingleFlight(performSync);
 
   // Debounce the sync function to avoid excessive API calls
-  const debouncedSync = useDebounce(singleFlightSync, 250)
+  const debouncedSync = useDebounce(singleFlightSync, 250);
 
   // Function to sync state with Convex - takes explicit values to handle async state updates
   const syncStateWithConvex = useCallback(
     (syncNotes?: string, syncItems?: Array<LocalWorkoutItemDraft>) => {
-      debouncedSync(syncNotes ?? notes, syncItems ?? items)
+      debouncedSync(syncNotes ?? notes, syncItems ?? items);
     },
     [notes, items, debouncedSync],
-  )
+  );
 
   const handleExerciseSelected = (
     exercise: ExerciseRef,
@@ -131,37 +131,37 @@ export default function WorkoutContent({
     const newItems = [
       ...items,
       { exercise, exerciseData, notes: '', sets: [{ reps: 10, weight: 0 }] },
-    ]
-    setItems(newItems)
-    syncStateWithConvex(notes, newItems)
-  }
+    ];
+    setItems(newItems);
+    syncStateWithConvex(notes, newItems);
+  };
 
   const handleExerciseChange = (
     idx: number,
     updatedItem: LocalWorkoutItemDraft,
   ) => {
-    const newItems = items.map((p, i) => (i === idx ? updatedItem : p))
-    setItems(newItems)
-    syncStateWithConvex(notes, newItems)
-  }
+    const newItems = items.map((p, i) => (i === idx ? updatedItem : p));
+    setItems(newItems);
+    syncStateWithConvex(notes, newItems);
+  };
 
   const handleExerciseDelete = (idx: number) => {
-    const newItems = items.filter((_, i) => i !== idx)
-    setItems(newItems)
-    syncStateWithConvex(notes, newItems)
-  }
+    const newItems = items.filter((_, i) => i !== idx);
+    setItems(newItems);
+    syncStateWithConvex(notes, newItems);
+  };
 
   const handleNotesChange = (newNotes: string) => {
-    setNotes(newNotes)
-    syncStateWithConvex(newNotes, items)
-  }
+    setNotes(newNotes);
+    syncStateWithConvex(newNotes, items);
+  };
 
   const retrySync = () => {
     // Use current state values and trigger immediate sync
     singleFlightSync(notes, items).catch(() => {
       // Error is already handled in performSync
-    })
-  }
+    });
+  };
 
   return (
     <div className="pb-24 max-w-xl mx-auto">
@@ -244,13 +244,13 @@ export default function WorkoutContent({
 
       <AddExerciseFab onAddExercise={() => setShowAddDialog(true)} />
     </div>
-  )
+  );
 }
 
 type SyncStatusIndicatorProps = {
-  syncStatus: SyncStatus
-  onRetry: () => void
-}
+  syncStatus: SyncStatus;
+  onRetry: () => void;
+};
 
 function SyncStatusIndicator({
   syncStatus,
@@ -277,7 +277,7 @@ function SyncStatusIndicator({
         </svg>
         Syncing...
       </span>
-    )
+    );
   }
 
   if (syncStatus.error) {
@@ -301,29 +301,29 @@ function SyncStatusIndicator({
         </svg>
         Sync failed - Retry
       </button>
-    )
+    );
   }
 
-  const timeAgo = Date.now() - syncStatus.lastSynced
+  const timeAgo = Date.now() - syncStatus.lastSynced;
 
-  const seconds = Math.floor(timeAgo / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const seconds = Math.floor(timeAgo / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
-  let timeText = ''
+  let timeText = '';
   if (seconds < 6) {
-    timeText = 'now'
+    timeText = 'now';
   } else if (seconds < 60) {
-    timeText = `${seconds}s ago`
+    timeText = `${seconds}s ago`;
   } else if (minutes < 60) {
-    timeText = `${minutes}m ago`
+    timeText = `${minutes}m ago`;
   } else if (hours < 48) {
     // Show hours up to 48 hours as "Xh ago"
-    timeText = `${hours}h ago`
+    timeText = `${hours}h ago`;
   } else {
     // Older than ~2 days, show in days
-    timeText = `${days}d ago`
+    timeText = `${days}d ago`;
   }
 
   return (
@@ -343,5 +343,5 @@ function SyncStatusIndicator({
       </svg>
       Synced {timeText}
     </span>
-  )
+  );
 }

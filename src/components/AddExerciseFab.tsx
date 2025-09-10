@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 interface AddExerciseFabProps {
-  onAddExercise: () => void
+  onAddExercise: () => void;
 }
 
 export function AddExerciseFab({ onAddExercise }: AddExerciseFabProps) {
@@ -15,7 +15,7 @@ export function AddExerciseFab({ onAddExercise }: AddExerciseFabProps) {
     >
       <PlusIcon className="w-6 h-6" />
     </button>
-  )
+  );
 }
 
-export default AddExerciseFab
+export default AddExerciseFab;

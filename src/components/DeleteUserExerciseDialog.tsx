@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { useMutation } from 'convex/react'
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { useState } from 'react'
+import { useMutation } from 'convex/react';
+import { useQuery } from '@tanstack/react-query';
+import { convexQuery } from '@convex-dev/react-query';
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,9 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+} from '@/components/ui/alert-dialog';
+import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 
 export function DeleteUserExerciseDialog({
   exerciseId,
@@ -24,26 +24,26 @@ export function DeleteUserExerciseDialog({
   onDeleted,
   children,
 }: {
-  exerciseId: Id<'userExercises'>
-  exerciseName: string
-  onDeleted?: () => void
-  children: React.ReactNode
+  exerciseId: Id<'userExercises'>;
+  exerciseName: string;
+  onDeleted?: () => void;
+  children: React.ReactNode;
 }) {
   const { data: checkUsage } = useQuery(
     convexQuery(api.exercises.checkExerciseUsage, { exerciseId }),
-  )
-  const deleteExercise = useMutation(api.exercises.deleteUserExercise)
-  const [submitting, setSubmitting] = useState(false)
+  );
+  const deleteExercise = useMutation(api.exercises.deleteUserExercise);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleDelete = async () => {
     try {
-      setSubmitting(true)
-      await deleteExercise({ exerciseId })
-      onDeleted?.()
+      setSubmitting(true);
+      await deleteExercise({ exerciseId });
+      onDeleted?.();
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   if (!checkUsage) {
     return (
@@ -55,7 +55,7 @@ export function DeleteUserExerciseDialog({
           </AlertDialogHeader>
         </AlertDialogContent>
       </AlertDialog>
-    )
+    );
   }
 
   return (
@@ -103,5 +103,5 @@ export function DeleteUserExerciseDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

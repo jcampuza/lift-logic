@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { forwardRef, useState, useCallback, useEffect } from 'react'
-import { cn } from '@/lib/utils'
+import { forwardRef, useState, useCallback, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 interface NumericInputProps
   extends Omit<
     React.InputHTMLAttributes<HTMLInputElement>,
     'onChange' | 'value' | 'type' | 'step'
   > {
-  value: number | undefined
-  onChange: (value: number | undefined) => void
-  allowEmpty?: boolean
-  min?: number
-  max?: number
-  allowDecimals?: boolean
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  allowEmpty?: boolean;
+  min?: number;
+  max?: number;
+  allowDecimals?: boolean;
 }
 
 const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
@@ -35,80 +35,80 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ) => {
     // Internal string state for managing display
     const [displayValue, setDisplayValue] = useState<string>(() => {
-      if (value === undefined || value === null) return ''
-      return String(value)
-    })
+      if (value === undefined || value === null) return '';
+      return String(value);
+    });
 
-    const [isFocused, setIsFocused] = useState(false)
+    const [isFocused, setIsFocused] = useState(false);
 
     // Update display value when prop value changes (but not during focus)
     useEffect(() => {
       if (!isFocused) {
         if (value === undefined || value === null) {
-          setDisplayValue('')
+          setDisplayValue('');
         } else {
-          setDisplayValue(String(value))
+          setDisplayValue(String(value));
         }
       }
-    }, [value, isFocused])
+    }, [value, isFocused]);
 
     const handleInputChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.target.value
-        setDisplayValue(inputValue)
+        const inputValue = e.target.value;
+        setDisplayValue(inputValue);
 
         // Handle empty input
         if (inputValue === '' || inputValue === '-') {
           if (allowEmpty) {
-            onChange(undefined)
+            onChange(undefined);
           }
-          return
+          return;
         }
 
         // Parse the number
         let numericValue = allowDecimals
           ? parseFloat(inputValue)
-          : parseInt(inputValue, 10)
+          : parseInt(inputValue, 10);
 
         // Validate the number
-        if (isNaN(numericValue)) return
+        if (isNaN(numericValue)) return;
 
         // Apply constraints
         if (min !== undefined && numericValue < min) {
-          numericValue = min
+          numericValue = min;
         }
         if (max !== undefined && numericValue > max) {
-          numericValue = max
+          numericValue = max;
         }
 
-        onChange(numericValue)
+        onChange(numericValue);
       },
       [onChange, allowEmpty, allowDecimals, min, max],
-    )
+    );
 
     const handleFocus = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
-        setIsFocused(true)
-        onFocus?.(e)
+        setIsFocused(true);
+        onFocus?.(e);
       },
       [onFocus],
-    )
+    );
 
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
-        setIsFocused(false)
+        setIsFocused(false);
 
         // Clean up display value on blur
         if (value === undefined || value === null) {
-          setDisplayValue('')
+          setDisplayValue('');
         } else {
-          setDisplayValue(String(value))
+          setDisplayValue(String(value));
         }
 
-        onBlur?.(e)
+        onBlur?.(e);
       },
       [onBlur, value],
-    )
+    );
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -125,9 +125,9 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
           'ArrowRight',
           'ArrowUp',
           'ArrowDown',
-        ]
+        ];
         if (allowedKeys.includes(e.key)) {
-          return
+          return;
         }
 
         // Allow Ctrl/Cmd+A, Ctrl/Cmd+C, Ctrl/Cmd+V, Ctrl/Cmd+X
@@ -135,7 +135,7 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
           (e.ctrlKey === true || e.metaKey === true) &&
           ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())
         ) {
-          return
+          return;
         }
 
         // Allow minus sign at beginning for negative numbers
@@ -144,21 +144,21 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
           e.currentTarget.selectionStart === 0 &&
           !displayValue.includes('-')
         ) {
-          return
+          return;
         }
 
         // Allow decimal point if decimals are allowed and there isn't one already
         if (allowDecimals && e.key === '.' && !displayValue.includes('.')) {
-          return
+          return;
         }
 
         // Ensure that it's a number
         if (!/[0-9]/.test(e.key)) {
-          e.preventDefault()
+          e.preventDefault();
         }
       },
       [displayValue, allowDecimals],
-    )
+    );
 
     return (
       <input
@@ -177,10 +177,10 @@ const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         )}
         {...props}
       />
-    )
+    );
   },
-)
+);
 
-NumericInput.displayName = 'NumericInput'
+NumericInput.displayName = 'NumericInput';
 
-export { NumericInput }
+export { NumericInput };

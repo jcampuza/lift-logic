@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import { useMutation } from 'convex/react'
-import { useEffect, useState } from 'react'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+import { useMutation } from 'convex/react';
+import { useEffect, useState } from 'react';
+import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 import {
   PrimaryMuscleGroupSelector,
   SecondaryMuscleGroupSelector,
-} from './MuscleGroupSelector'
+} from './MuscleGroupSelector';
 
-export type CreateExerciseResult = Id<'userExercises'>
+export type CreateExerciseResult = Id<'userExercises'>;
 
 export interface UserExerciseData {
-  _id?: Id<'userExercises'>
-  name: string
-  primaryMuscle: string
-  secondaryMuscles: string[]
-  notes?: string
-  aliases?: string[]
+  _id?: Id<'userExercises'>;
+  name: string;
+  primaryMuscle: string;
+  secondaryMuscles: string[];
+  notes?: string;
+  aliases?: string[];
 }
 
 export function CreateUserExercise({
@@ -28,35 +28,35 @@ export function CreateUserExercise({
   editData,
   mode = 'create',
 }: {
-  defaultName?: string
-  onCreated?: (id: CreateExerciseResult, name: string) => void
-  onUpdated?: (name: string) => void
-  className?: string
-  editData?: UserExerciseData
-  mode?: 'create' | 'edit'
+  defaultName?: string;
+  onCreated?: (id: CreateExerciseResult, name: string) => void;
+  onUpdated?: (name: string) => void;
+  className?: string;
+  editData?: UserExerciseData;
+  mode?: 'create' | 'edit';
 }) {
-  const createUserExercise = useMutation(api.exercises.createUserExercise)
-  const updateUserExercise = useMutation(api.exercises.updateUserExercise)
+  const createUserExercise = useMutation(api.exercises.createUserExercise);
+  const updateUserExercise = useMutation(api.exercises.updateUserExercise);
 
-  const [name, setName] = useState(defaultName)
-  const [primary, setPrimary] = useState('')
-  const [secondary, setSecondary] = useState<string[]>([])
-  const [aliases, setAliases] = useState('')
-  const [notes, setNotes] = useState('')
-  const [status, setStatus] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const [name, setName] = useState(defaultName);
+  const [primary, setPrimary] = useState('');
+  const [secondary, setSecondary] = useState<string[]>([]);
+  const [aliases, setAliases] = useState('');
+  const [notes, setNotes] = useState('');
+  const [status, setStatus] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Initialize form with edit data when in edit mode
   useEffect(() => {
     if (mode === 'edit' && editData) {
-      setName(editData.name)
-      setPrimary(editData.primaryMuscle)
-      setSecondary(editData.secondaryMuscles)
-      setAliases((editData.aliases || []).join(', '))
-      setNotes(editData.notes || '')
-      setStatus(null)
+      setName(editData.name);
+      setPrimary(editData.primaryMuscle);
+      setSecondary(editData.secondaryMuscles);
+      setAliases((editData.aliases || []).join(', '));
+      setNotes(editData.notes || '');
+      setStatus(null);
     }
-  }, [mode, editData])
+  }, [mode, editData]);
 
   return (
     <div className={className}>
@@ -106,17 +106,17 @@ export function CreateUserExercise({
             className="rounded-md px-3 py-2 bg-primary text-primary-foreground disabled:opacity-50"
             disabled={submitting}
             onClick={async () => {
-              const trimmedName = name.trim()
+              const trimmedName = name.trim();
               if (trimmedName === '' || primary === '') {
-                setStatus('Please provide name and primary muscle.')
-                return
+                setStatus('Please provide name and primary muscle.');
+                return;
               }
-              setSubmitting(true)
+              setSubmitting(true);
               try {
                 const aliasesArr = aliases
                   .split(',')
                   .map((s) => s.trim())
-                  .filter((s) => s !== '')
+                  .filter((s) => s !== '');
 
                 if (mode === 'edit' && editData?._id) {
                   await updateUserExercise({
@@ -126,9 +126,9 @@ export function CreateUserExercise({
                     secondaryMuscles: secondary,
                     aliases: aliasesArr.length ? aliasesArr : undefined,
                     notes: notes.trim() === '' ? undefined : notes.trim(),
-                  })
-                  setStatus('Exercise updated.')
-                  onUpdated?.(trimmedName)
+                  });
+                  setStatus('Exercise updated.');
+                  onUpdated?.(trimmedName);
                 } else {
                   const id = await createUserExercise({
                     name: trimmedName,
@@ -136,19 +136,19 @@ export function CreateUserExercise({
                     secondaryMuscles: secondary,
                     aliases: aliasesArr.length ? aliasesArr : undefined,
                     notes: notes.trim() === '' ? undefined : notes.trim(),
-                  })
-                  setStatus('Exercise added.')
-                  onCreated?.(id, trimmedName)
+                  });
+                  setStatus('Exercise added.');
+                  onCreated?.(id, trimmedName);
                   if (mode === 'create') {
-                    setName('')
-                    setPrimary('')
-                    setSecondary([])
-                    setAliases('')
-                    setNotes('')
+                    setName('');
+                    setPrimary('');
+                    setSecondary([]);
+                    setAliases('');
+                    setNotes('');
                   }
                 }
               } finally {
-                setSubmitting(false)
+                setSubmitting(false);
               }
             }}
           >
@@ -158,7 +158,7 @@ export function CreateUserExercise({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default CreateUserExercise
+export default CreateUserExercise;

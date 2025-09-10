@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { PencilIcon, TrashIcon, PlusIcon } from 'lucide-react'
-import { DeleteUserExerciseDialog } from './DeleteUserExerciseDialog'
-import { EditUserExerciseDialog } from './EditUserExerciseDialog'
-import { CreateUserExerciseDialog } from './CreateUserExerciseDialog'
-import { Skeleton } from './ui/skeleton'
-import { api } from '../../convex/_generated/api'
+import { useQuery } from '@tanstack/react-query';
+import { convexQuery } from '@convex-dev/react-query';
+import { PencilIcon, TrashIcon, PlusIcon } from 'lucide-react';
+import { DeleteUserExerciseDialog } from './DeleteUserExerciseDialog';
+import { EditUserExerciseDialog } from './EditUserExerciseDialog';
+import { CreateUserExerciseDialog } from './CreateUserExerciseDialog';
+import { Skeleton } from './ui/skeleton';
+import { api } from '../../convex/_generated/api';
 
 function UserExerciseSkeleton() {
   return (
@@ -21,13 +21,13 @@ function UserExerciseSkeleton() {
         <Skeleton className="h-8 w-8 rounded-md" />
       </div>
     </div>
-  )
+  );
 }
 
 export function ManageUserExercises() {
   const { data: userExercises, isLoading } = useQuery(
     convexQuery(api.exercises.listUserExercises, {}),
-  )
+  );
 
   return (
     <div className="space-y-4">
@@ -105,5 +105,5 @@ export function ManageUserExercises() {
         </div>
       )}
     </div>
-  )
+  );
 }

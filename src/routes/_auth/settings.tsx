@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Suspense } from 'react'
-import SettingsPageContent from '../../components/SettingsPageContent'
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { Suspense } from 'react';
+import SettingsPageContent from '../../components/SettingsPageContent';
 
 export const Route = createFileRoute('/_auth/settings')({
   component: Settings,
-})
+});
 
 function SettingsPageLoading() {
   return (
@@ -14,7 +14,7 @@ function SettingsPageLoading() {
         <div className="h-10 bg-muted rounded-md w-32"></div>
       </div>
     </div>
-  )
+  );
 }
 
 function Settings() {
@@ -33,5 +33,5 @@ function Settings() {
         </Suspense>
       </div>
     </div>
-  )
+  );
 }

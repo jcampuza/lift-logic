@@ -1,30 +1,30 @@
-'use client'
+'use client';
 
-import { Link } from '@tanstack/react-router'
-import MuscleGroupStats from './MuscleGroupStats'
-import WorkoutDropdown from './WorkoutDropdown'
-import type { Id } from '../../convex/_generated/dataModel'
+import { Link } from '@tanstack/react-router';
+import MuscleGroupStats from './MuscleGroupStats';
+import WorkoutDropdown from './WorkoutDropdown';
+import type { Id } from '../../convex/_generated/dataModel';
 
 export type WorkoutListItemData = {
-  _id: Id<'workouts'>
-  date: number
-  notes?: string
+  _id: Id<'workouts'>;
+  date: number;
+  notes?: string;
   items: Array<{
     exercise:
       | { kind: 'global'; id: Id<'globalExercises'> }
-      | { kind: 'user'; id: Id<'userExercises'> }
-    sets: Array<{ reps: number; weight?: number }>
-  }>
-}
+      | { kind: 'user'; id: Id<'userExercises'> };
+    sets: Array<{ reps: number; weight?: number }>;
+  }>;
+};
 
 type NameMaps = {
-  globalIdToName: Map<Id<'globalExercises'>, string>
-  userIdToName: Map<Id<'userExercises'>, string>
-}
+  globalIdToName: Map<Id<'globalExercises'>, string>;
+  userIdToName: Map<Id<'userExercises'>, string>;
+};
 
 type WorkoutListItemProps = {
-  workout: WorkoutListItemData
-} & NameMaps
+  workout: WorkoutListItemData;
+} & NameMaps;
 
 export default function WorkoutListItem({
   workout,
@@ -34,7 +34,7 @@ export default function WorkoutListItem({
   const totalSets = workout.items.reduce(
     (sum, item) => sum + item.sets.length,
     0,
-  )
+  );
 
   return (
     <Link
@@ -63,8 +63,8 @@ export default function WorkoutListItem({
               const name =
                 it.exercise.kind === 'global'
                   ? globalIdToName.get(it.exercise.id)
-                  : userIdToName.get(it.exercise.id)
-              const resolved = name ?? 'Exercise'
+                  : userIdToName.get(it.exercise.id);
+              const resolved = name ?? 'Exercise';
               return (
                 <div
                   key={String(workout._id) + idx}
@@ -75,7 +75,7 @@ export default function WorkoutListItem({
                     {it.sets.length} set{it.sets.length === 1 ? '' : 's'}
                   </span>
                 </div>
-              )
+              );
             })}
           </div>
         ) : (
@@ -97,5 +97,5 @@ export default function WorkoutListItem({
         )}
       </div>
     </Link>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react';
 
 /**
  * Wraps a function to single-flight invocations, using the latest args.
@@ -28,40 +28,40 @@ export default function useSingleFlight<Args extends Array<unknown>, R>(
   const flightStatus = useRef({
     inFlight: false,
     upNext: null as null | {
-      fn: (...args: Args) => Promise<R>
-      resolve: (value: R) => void
-      reject: (reason?: unknown) => void
-      args: Args
+      fn: (...args: Args) => Promise<R>;
+      resolve: (value: R) => void;
+      reject: (reason?: unknown) => void;
+      args: Args;
     },
-  })
+  });
 
   return useCallback(
     (...args: Args): Promise<R> => {
       if (flightStatus.current.inFlight) {
         return new Promise<R>((resolve, reject) => {
-          flightStatus.current.upNext = { fn, resolve, reject, args }
-        })
+          flightStatus.current.upNext = { fn, resolve, reject, args };
+        });
       }
-      flightStatus.current.inFlight = true
-      const firstReq = fn(...args) as Promise<R>
+      flightStatus.current.inFlight = true;
+      const firstReq = fn(...args) as Promise<R>;
       void (async () => {
         try {
-          await firstReq
+          await firstReq;
         } finally {
           // If it failed, we naively just move on to the next request.
         }
         while (flightStatus.current.upNext) {
-          const cur = flightStatus.current.upNext
-          flightStatus.current.upNext = null
+          const cur = flightStatus.current.upNext;
+          flightStatus.current.upNext = null;
           await cur
             .fn(...cur.args)
             .then(cur.resolve)
-            .catch(cur.reject)
+            .catch(cur.reject);
         }
-        flightStatus.current.inFlight = false
-      })()
-      return firstReq
+        flightStatus.current.inFlight = false;
+      })();
+      return firstReq;
     },
     [fn],
-  )
+  );
 }

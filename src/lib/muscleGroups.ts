@@ -23,7 +23,7 @@ export const MUSCLE_GROUPS = {
   ABS: 'Abs',
   CORE: 'Core',
   HIP_FLEXORS: 'Hip Flexors',
-} as const
+} as const;
 
 export const MUSCLE_GROUP_MAPPING: Record<string, string> = {
   Chest: MUSCLE_GROUPS.CHEST,
@@ -48,6 +48,6 @@ export const MUSCLE_GROUP_MAPPING: Record<string, string> = {
   Glutes: MUSCLE_GROUPS.GLUTES,
   Calves: MUSCLE_GROUPS.CALVES,
   Abs: MUSCLE_GROUPS.ABS,
-}
+};
 
-export const muscleGroupOptions = Object.values(MUSCLE_GROUPS).sort()
+export const muscleGroupOptions = Object.values(MUSCLE_GROUPS).sort();

@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import { EllipsisVerticalIcon } from '@heroicons/react/24/outline'
+import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu';
 
 interface ExerciseDropdownProps {
-  onDelete: () => void
-  onClearExercise?: () => void
-  align?: 'start' | 'center' | 'end'
-  showClearOption?: boolean
+  onDelete: () => void;
+  onClearExercise?: () => void;
+  align?: 'start' | 'center' | 'end';
+  showClearOption?: boolean;
 }
 
 export function ExerciseDropdown({
@@ -28,8 +28,8 @@ export function ExerciseDropdown({
           className="rounded-md p-1 hover:bg-slate-700 relative z-10"
           aria-label="Exercise actions"
           onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
+            e.preventDefault();
+            e.stopPropagation();
           }}
         >
           <EllipsisVerticalIcon className="h-5 w-5" />
@@ -38,8 +38,8 @@ export function ExerciseDropdown({
       <DropdownMenuContent
         align={align}
         onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
+          e.preventDefault();
+          e.stopPropagation();
         }}
       >
         {showClearOption && onClearExercise && (
@@ -52,7 +52,7 @@ export function ExerciseDropdown({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
-export default ExerciseDropdown
+export default ExerciseDropdown;

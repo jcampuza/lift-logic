@@ -1,8 +1,8 @@
-import { getAuthUserId } from '@convex-dev/auth/server'
-import { v } from 'convex/values'
-import type { Id } from './_generated/dataModel'
-import { mutation, query } from './_generated/server'
-import { MUSCLE_GROUP_MAPPING } from '../src/lib/muscleGroups'
+import { getAuthUserId } from '@convex-dev/auth/server';
+import { v } from 'convex/values';
+import type { Id } from './_generated/dataModel';
+import { mutation, query } from './_generated/server';
+import { MUSCLE_GROUP_MAPPING } from '../src/lib/muscleGroups';
 
 export const listWorkouts = query({
   args: {},
@@ -32,16 +32,16 @@ export const listWorkouts = query({
     }),
   ),
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) return []
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
     const workouts = await ctx.db
       .query('workouts')
       .withIndex('by_user_and_date', (q) => q.eq('userId', userId))
       .order('desc')
-      .collect()
-    return workouts
+      .collect();
+    return workouts;
   },
-})
+});
 
 export const getWorkout = query({
   args: { id: v.id('workouts') },
@@ -70,33 +70,33 @@ export const getWorkout = query({
     ),
   }),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Not authenticated')
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error('Not authenticated');
 
-    const workout = await ctx.db.get(args.id)
-    if (!workout) throw new Error('Workout not found')
-    if (workout.userId !== userId) throw new Error('Unauthorized')
+    const workout = await ctx.db.get(args.id);
+    if (!workout) throw new Error('Workout not found');
+    if (workout.userId !== userId) throw new Error('Unauthorized');
 
     // Enrich workout items with exercise data
     const enrichedItems = await Promise.all(
       workout.items.map(async (item) => {
-        let exerciseData
+        let exerciseData;
         if (item.exercise.kind === 'global') {
-          const globalExercise = await ctx.db.get(item.exercise.id)
+          const globalExercise = await ctx.db.get(item.exercise.id);
           exerciseData = globalExercise
             ? {
                 name: globalExercise.name,
                 primaryMuscle: globalExercise.primaryMuscle,
               }
-            : { name: 'Unknown Exercise', primaryMuscle: undefined }
+            : { name: 'Unknown Exercise', primaryMuscle: undefined };
         } else {
-          const userExercise = await ctx.db.get(item.exercise.id)
+          const userExercise = await ctx.db.get(item.exercise.id);
           exerciseData = userExercise
             ? {
                 name: userExercise.name,
                 primaryMuscle: userExercise.primaryMuscle,
               }
-            : { name: 'Unknown Exercise', primaryMuscle: undefined }
+            : { name: 'Unknown Exercise', primaryMuscle: undefined };
         }
 
         return {
@@ -104,9 +104,9 @@ export const getWorkout = query({
           exerciseData,
           notes: item.notes,
           sets: item.sets,
-        }
+        };
       }),
-    )
+    );
 
     return {
       _id: workout._id,
@@ -116,9 +116,9 @@ export const getWorkout = query({
       updatedAt: workout.updatedAt,
       notes: workout.notes,
       items: enrichedItems,
-    }
+    };
   },
-})
+});
 
 export const createWorkout = mutation({
   args: {
@@ -139,18 +139,18 @@ export const createWorkout = mutation({
   },
   returns: v.id('workouts'),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Not authenticated')
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error('Not authenticated');
     const workoutId = await ctx.db.insert('workouts', {
       userId: userId as Id<'users'>,
       date: args.date,
       notes: args.notes,
       items: args.items,
       updatedAt: Date.now(),
-    })
-    return workoutId
+    });
+    return workoutId;
   },
-})
+});
 
 export const updateWorkout = mutation({
   args: {
@@ -172,39 +172,70 @@ export const updateWorkout = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Not authenticated')
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error('Not authenticated');
 
-    const existingWorkout = await ctx.db.get(args.id)
-    if (!existingWorkout) throw new Error('Workout not found')
-    if (existingWorkout.userId !== userId) throw new Error('Unauthorized')
+    const existingWorkout = await ctx.db.get(args.id);
+    if (!existingWorkout) throw new Error('Workout not found');
+    if (existingWorkout.userId !== userId) throw new Error('Unauthorized');
 
     await ctx.db.patch(args.id, {
       date: args.date,
       notes: args.notes,
       items: args.items,
       updatedAt: Date.now(),
-    })
+    });
 
-    return null
+    return null;
   },
-})
+});
 
 export const deleteWorkout = mutation({
   args: { id: v.id('workouts') },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Not authenticated')
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error('Not authenticated');
 
-    const existingWorkout = await ctx.db.get(args.id)
-    if (!existingWorkout) return null
-    if (existingWorkout.userId !== userId) throw new Error('Unauthorized')
+    const existingWorkout = await ctx.db.get(args.id);
+    if (!existingWorkout) return null;
+    if (existingWorkout.userId !== userId) throw new Error('Unauthorized');
 
-    await ctx.db.delete(args.id)
-    return null
+    await ctx.db.delete(args.id);
+    return null;
   },
-})
+});
+
+export const cloneLatestWorkout = mutation({
+  args: {},
+  returns: v.id('workouts'),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    const latest = await ctx.db
+      .query('workouts')
+      .withIndex('by_user_and_date', (q) => q.eq('userId', userId))
+      .order('desc')
+      .first();
+
+    if (!latest) {
+      throw new Error('No previous workouts found');
+    }
+
+    const newId = await ctx.db.insert('workouts', {
+      userId: userId,
+      date: Date.now(),
+      notes: latest.notes,
+      items: latest.items,
+      updatedAt: Date.now(),
+    });
+
+    return newId;
+  },
+});
 
 export const getLastExercisePerformance = query({
   args: {
@@ -227,20 +258,20 @@ export const getLastExercisePerformance = query({
     v.null(),
   ),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) throw new Error('Not authenticated')
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error('Not authenticated');
 
     // Get the reference date - either from the excluded workout or current time
-    let referenceDate = Date.now()
+    let referenceDate = Date.now();
     if (args.excludeWorkoutId) {
-      const excludedWorkout = await ctx.db.get(args.excludeWorkoutId)
+      const excludedWorkout = await ctx.db.get(args.excludeWorkoutId);
       if (excludedWorkout && excludedWorkout.userId === userId) {
-        referenceDate = excludedWorkout.date
+        referenceDate = excludedWorkout.date;
       }
     }
 
     // Calculate cutoff date (7 days before reference date)
-    const sevenDaysAgo = referenceDate - 7 * 24 * 60 * 60 * 1000
+    const sevenDaysAgo = referenceDate - 7 * 24 * 60 * 60 * 1000;
 
     // Query recent workouts (last 7 days from reference date), ordered by date desc (most recent first)
     const recentWorkouts = await ctx.db
@@ -252,47 +283,47 @@ export const getLastExercisePerformance = query({
           .lt('date', referenceDate),
       )
       .order('desc')
-      .collect()
+      .collect();
 
     // Find the most recent workout containing the target exercise
     for (const workout of recentWorkouts) {
       // Skip the excluded workout if specified
       if (args.excludeWorkoutId && workout._id === args.excludeWorkoutId) {
-        continue
+        continue;
       }
 
       const exerciseItem = workout.items.find(
         (item) =>
           item.exercise.kind === args.exercise.kind &&
           item.exercise.id === args.exercise.id,
-      )
+      );
 
       if (exerciseItem && exerciseItem.sets.length > 0) {
         // Find the top set (highest weight)
-        let topSet = null
-        let maxWeight = -1
+        let topSet = null;
+        let maxWeight = -1;
 
         for (const set of exerciseItem.sets) {
           if (set.weight !== undefined && set.weight > maxWeight) {
-            maxWeight = set.weight
-            topSet = set
+            maxWeight = set.weight;
+            topSet = set;
           }
         }
 
         if (topSet && topSet.weight !== undefined) {
           // Get exercise name
-          let exerciseName = 'Unknown Exercise'
+          let exerciseName = 'Unknown Exercise';
           if (args.exercise.kind === 'global') {
-            const globalExercise = await ctx.db.get(args.exercise.id)
-            if (globalExercise) exerciseName = globalExercise.name
+            const globalExercise = await ctx.db.get(args.exercise.id);
+            if (globalExercise) exerciseName = globalExercise.name;
           } else {
-            const userExercise = await ctx.db.get(args.exercise.id)
-            if (userExercise) exerciseName = userExercise.name
+            const userExercise = await ctx.db.get(args.exercise.id);
+            if (userExercise) exerciseName = userExercise.name;
           }
 
           const daysAgo = Math.floor(
             (referenceDate - workout.date) / (24 * 60 * 60 * 1000),
-          )
+          );
 
           return {
             workoutDate: workout.date,
@@ -302,15 +333,15 @@ export const getLastExercisePerformance = query({
               reps: topSet.reps,
             },
             daysAgo,
-          }
+          };
         }
       }
     }
 
     // No recent performance found
-    return null
+    return null;
   },
-})
+});
 
 export const getWorkoutAnalytics = query({
   args: { workoutId: v.id('workouts') },
@@ -323,37 +354,39 @@ export const getWorkoutAnalytics = query({
     ),
   }),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx)
+    const userId = await getAuthUserId(ctx);
     if (!userId) {
-      throw new Error('Not authenticated')
+      throw new Error('Not authenticated');
     }
 
-    const workout = await ctx.db.get(args.workoutId)
+    const workout = await ctx.db.get(args.workoutId);
     if (!workout || workout.userId !== userId) {
-      throw new Error('Workout not found or unauthorized')
+      throw new Error('Workout not found or unauthorized');
     }
 
     // Get all exercises referenced in the workout
-    const exerciseIds: Id<'globalExercises' | 'userExercises'>[] = []
+    const exerciseIds: Id<'globalExercises' | 'userExercises'>[] = [];
 
     for (const item of workout.items) {
-      exerciseIds.push(item.exercise.id)
+      exerciseIds.push(item.exercise.id);
     }
 
-    const exercises = await Promise.all(exerciseIds.map((id) => ctx.db.get(id)))
+    const exercises = await Promise.all(
+      exerciseIds.map((id) => ctx.db.get(id)),
+    );
 
     const exerciseMap = new Map(
       exercises
         .filter((exercise) => exercise !== null)
         .map((exercise) => [exercise._id, exercise]),
-    )
+    );
 
     // Fetch user preference for including half sets
     const preferences = await ctx.db
       .query('userPreferences')
       .withIndex('by_user', (q) => q.eq('userId', userId))
-      .first()
-    const includeHalfSets = preferences?.includeHalfSets ?? true
+      .first();
+    const includeHalfSets = preferences?.includeHalfSets ?? true;
 
     // Calculate muscle group counts
     // Split arms and legs into more specific groups (Biceps/Triceps, Quads/Hamstrings)
@@ -370,34 +403,34 @@ export const getWorkoutAnalytics = query({
       Calves: 0,
       Core: 0,
       Abs: 0,
-    }
+    };
 
     // Simple broad muscle group mapping (inline to avoid import issues in Convex)
     const getBroadGroup = (muscle: string): string | null => {
-      return MUSCLE_GROUP_MAPPING[muscle] || null
-    }
+      return MUSCLE_GROUP_MAPPING[muscle] || null;
+    };
 
     for (const item of workout.items) {
-      const exercise = exerciseMap.get(item.exercise.id)
+      const exercise = exerciseMap.get(item.exercise.id);
 
       if (!exercise) {
-        continue
+        continue;
       }
 
-      const setCount = item.sets.length
+      const setCount = item.sets.length;
 
       // Count sets for primary muscle
-      const primaryBroad = getBroadGroup(exercise.primaryMuscle)
+      const primaryBroad = getBroadGroup(exercise.primaryMuscle);
       if (primaryBroad) {
-        muscleGroups[primaryBroad] += setCount
+        muscleGroups[primaryBroad] += setCount;
       }
 
       if (includeHalfSets) {
         // Count sets for secondary muscles (with reduced weight)
         for (const secondaryMuscle of exercise.secondaryMuscles) {
-          const secondaryBroad = getBroadGroup(secondaryMuscle)
+          const secondaryBroad = getBroadGroup(secondaryMuscle);
           if (secondaryBroad && secondaryBroad !== primaryBroad) {
-            muscleGroups[secondaryBroad] += setCount * 0.5
+            muscleGroups[secondaryBroad] += setCount * 0.5;
           }
         }
       }
@@ -407,8 +440,8 @@ export const getWorkoutAnalytics = query({
     const sortedMuscleGroups = Object.entries(muscleGroups)
       .filter(([, sets]) => sets > 0)
       .sort(([, a], [, b]) => b - a)
-      .map(([name, sets]) => ({ name, sets }))
+      .map(([name, sets]) => ({ name, sets }));
 
-    return { muscleGroups: sortedMuscleGroups }
+    return { muscleGroups: sortedMuscleGroups };
   },
-})
+});

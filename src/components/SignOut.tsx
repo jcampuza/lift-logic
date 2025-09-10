@@ -1,24 +1,24 @@
-import { useAuthActions } from '@convex-dev/auth/react'
-import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { Button } from './ui/button'
+import { useAuthActions } from '@convex-dev/auth/react';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { Button } from './ui/button';
 
 export function SignOut() {
-  const { signOut } = useAuthActions()
-  const navigate = useNavigate()
-  const [isSigningOut, setIsSigningOut] = useState(false)
+  const { signOut } = useAuthActions();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
-    setIsSigningOut(true)
+    setIsSigningOut(true);
     try {
-      await signOut()
-      navigate({ to: '/signin' })
+      await signOut();
+      navigate({ to: '/signin' });
     } catch (error) {
-      console.error('Sign out error:', error)
-      setIsSigningOut(false)
+      console.error('Sign out error:', error);
+      setIsSigningOut(false);
     }
-  }
+  };
 
   return (
     <Button
@@ -30,5 +30,5 @@ export function SignOut() {
       {isSigningOut && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
       {isSigningOut ? 'Signing out...' : 'Sign out'}
     </Button>
-  )
+  );
 }

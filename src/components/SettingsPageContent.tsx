@@ -1,6 +1,6 @@
-import { ManageUserExercises } from './ManageUserExercises'
-import UserPreferences from './UserPreferences'
-import { SignOut } from './SignOut'
+import { ManageUserExercises } from './ManageUserExercises';
+import UserPreferences from './UserPreferences';
+import { SignOut } from './SignOut';
 
 export default function SettingsPageContent() {
   return (
@@ -19,5 +19,5 @@ export default function SettingsPageContent() {
         <SignOut />
       </section>
     </>
-  )
+  );
 }

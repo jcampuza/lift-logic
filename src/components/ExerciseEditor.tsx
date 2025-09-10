@@ -1,33 +1,33 @@
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { useState } from 'react'
-import ExerciseDropdown from './ExerciseDropdown'
-import { NumericInput } from './ui/numeric-input'
+import { useQuery } from '@tanstack/react-query';
+import { convexQuery } from '@convex-dev/react-query';
+import { useState } from 'react';
+import ExerciseDropdown from './ExerciseDropdown';
+import { NumericInput } from './ui/numeric-input';
 import {
   XIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   EditIcon,
   ClockIcon,
-} from 'lucide-react'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+} from 'lucide-react';
+import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 
 export type ExerciseRef =
   | { kind: 'global'; id: Id<'globalExercises'> }
-  | { kind: 'user'; id: Id<'userExercises'> }
+  | { kind: 'user'; id: Id<'userExercises'> };
 
 export type ExerciseData = {
-  name: string
-  primaryMuscle?: string
-}
+  name: string;
+  primaryMuscle?: string;
+};
 
 export type WorkoutItemDraft = {
-  exercise: ExerciseRef
-  exerciseData: ExerciseData
-  notes: string
-  sets: Array<{ reps: number; weight?: number }>
-}
+  exercise: ExerciseRef;
+  exerciseData: ExerciseData;
+  notes: string;
+  sets: Array<{ reps: number; weight?: number }>;
+};
 
 export function ExerciseEditor({
   value,
@@ -36,16 +36,16 @@ export function ExerciseEditor({
   isEditing = true,
   currentWorkoutId,
 }: {
-  value: WorkoutItemDraft
-  onChange: (v: WorkoutItemDraft) => void
-  onDelete: () => void
-  isEditing?: boolean
-  currentWorkoutId?: Id<'workouts'>
+  value: WorkoutItemDraft;
+  onChange: (v: WorkoutItemDraft) => void;
+  onDelete: () => void;
+  isEditing?: boolean;
+  currentWorkoutId?: Id<'workouts'>;
 }) {
   const { data: preferences } = useQuery(
     convexQuery(api.exercises.getUserPreferences, {}),
-  )
-  const weightUnit = preferences?.weightUnit ?? 'lbs'
+  );
+  const weightUnit = preferences?.weightUnit ?? 'lbs';
 
   // Get last performance data for this exercise, excluding current workout
   const { data: lastPerformance } = useQuery(
@@ -53,71 +53,71 @@ export function ExerciseEditor({
       exercise: value.exercise,
       excludeWorkoutId: currentWorkoutId,
     }),
-  )
+  );
 
   // Start expanded by default
-  const [isExpanded, setIsExpanded] = useState(true)
-  const [showNotes, setShowNotes] = useState(value.notes.trim() !== '')
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [showNotes, setShowNotes] = useState(value.notes.trim() !== '');
 
   const addSet = () => {
-    const lastSet = value.sets[value.sets.length - 1]
+    const lastSet = value.sets[value.sets.length - 1];
     const newSet = {
       reps: lastSet?.reps ?? 10,
       weight: lastSet?.weight ?? 0,
-    }
-    onChange({ ...value, sets: [...value.sets, newSet] })
-  }
+    };
+    onChange({ ...value, sets: [...value.sets, newSet] });
+  };
 
   const updateSetReps = (i: number, reps: number) => {
     const newSets = value.sets.map((s, idx) =>
       idx === i ? { reps, weight: s.weight } : s,
-    )
-    onChange({ ...value, sets: newSets })
-  }
+    );
+    onChange({ ...value, sets: newSets });
+  };
 
   const updateSetWeight = (i: number, weight: number | undefined) => {
     const newSets = value.sets.map((s, idx) =>
       idx === i ? { reps: s.reps, weight } : s,
-    )
-    onChange({ ...value, sets: newSets })
-  }
+    );
+    onChange({ ...value, sets: newSets });
+  };
 
   const removeSet = (i: number) => {
-    onChange({ ...value, sets: value.sets.filter((_, idx) => idx !== i) })
-  }
+    onChange({ ...value, sets: value.sets.filter((_, idx) => idx !== i) });
+  };
 
   // Generate summary text for collapsed view
   const getSummary = () => {
-    if (value.sets.length === 0) return 'No sets'
+    if (value.sets.length === 0) return 'No sets';
 
-    const totalSets = value.sets.length
-    const weights = value.sets.map((s) => s.weight).filter((w) => w && w > 0)
-    const reps = value.sets.map((s) => s.reps)
+    const totalSets = value.sets.length;
+    const weights = value.sets.map((s) => s.weight).filter((w) => w && w > 0);
+    const reps = value.sets.map((s) => s.reps);
 
-    let summary = `${totalSets} set${totalSets > 1 ? 's' : ''}`
+    let summary = `${totalSets} set${totalSets > 1 ? 's' : ''}`;
 
     if (reps.length > 0) {
-      const minReps = Math.min(...reps)
-      const maxReps = Math.max(...reps)
+      const minReps = Math.min(...reps);
+      const maxReps = Math.max(...reps);
       if (minReps === maxReps) {
-        summary += ` × ${minReps} reps`
+        summary += ` × ${minReps} reps`;
       } else {
-        summary += ` × ${minReps}-${maxReps} reps`
+        summary += ` × ${minReps}-${maxReps} reps`;
       }
     }
 
     if (weights.length > 0) {
-      const minWeight = Math.min(...(weights as number[]))
-      const maxWeight = Math.max(...(weights as number[]))
+      const minWeight = Math.min(...(weights as number[]));
+      const maxWeight = Math.max(...(weights as number[]));
       if (minWeight === maxWeight) {
-        summary += ` @ ${minWeight}${weightUnit}`
+        summary += ` @ ${minWeight}${weightUnit}`;
       } else {
-        summary += ` @ ${minWeight}-${maxWeight}${weightUnit}`
+        summary += ` @ ${minWeight}-${maxWeight}${weightUnit}`;
       }
     }
 
-    return summary
-  }
+    return summary;
+  };
 
   return (
     <div className="rounded-lg border border-border bg-card p-3">
@@ -262,7 +262,7 @@ export function ExerciseEditor({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default ExerciseEditor
+export default ExerciseEditor;

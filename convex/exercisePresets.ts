@@ -25,10 +25,10 @@ const MUSCLE_GROUPS = {
   ABS: 'Abs',
   CORE: 'Core',
   HIP_FLEXORS: 'Hip Flexors',
-} as const
+} as const;
 
 // Re-export for convenience
-export { MUSCLE_GROUPS }
+export { MUSCLE_GROUPS };
 
 // New v2 presets (includes oldName for renamed migrations)
 export const GLOBAL_EXERCISE_PRESETS_v2 = [
@@ -353,4 +353,4 @@ export const GLOBAL_EXERCISE_PRESETS_v2 = [
     primaryMuscle: MUSCLE_GROUPS.TRAPS,
     secondaryMuscles: [MUSCLE_GROUPS.FOREARMS],
   },
-] as const
+] as const;

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react';
 
 /**
  * Debounces a function call, ensuring it's only executed after a specified delay
@@ -14,20 +14,20 @@ export default function useDebounce<Args extends Array<unknown>, R>(
   fn: (...args: Args) => R,
   delay: number,
 ): (...args: Args) => void {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   return useCallback(
     (...args: Args): void => {
       // Clear existing timeout
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
 
       // Set new timeout
       timeoutRef.current = setTimeout(() => {
-        fn(...args)
-      }, delay)
+        fn(...args);
+      }, delay);
     },
     [fn, delay],
-  )
+  );
 }

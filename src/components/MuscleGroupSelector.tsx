@@ -1,20 +1,20 @@
-'use client'
+'use client';
 
-import { Checkbox } from '@/components/ui/checkbox'
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 
-import { muscleGroupOptions } from '@/lib/muscleGroups'
+import { muscleGroupOptions } from '@/lib/muscleGroups';
 
 interface PrimaryMuscleGroupSelectorProps {
-  value: string
-  onChange: (value: string) => void
-  className?: string
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
 }
 
 export function PrimaryMuscleGroupSelector({
@@ -37,14 +37,14 @@ export function PrimaryMuscleGroupSelector({
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }
 
 interface SecondaryMuscleGroupSelectorProps {
-  value: string[]
-  onChange: (value: string[]) => void
-  className?: string
-  primaryMuscle?: string
+  value: string[];
+  onChange: (value: string[]) => void;
+  className?: string;
+  primaryMuscle?: string;
 }
 
 export function SecondaryMuscleGroupSelector({
@@ -55,15 +55,15 @@ export function SecondaryMuscleGroupSelector({
 }: SecondaryMuscleGroupSelectorProps) {
   const availableOptions = muscleGroupOptions.filter(
     (muscle) => muscle !== primaryMuscle,
-  )
+  );
 
   const handleToggle = (muscle: string, checked: boolean) => {
     if (checked) {
-      onChange([...value, muscle])
+      onChange([...value, muscle]);
     } else {
-      onChange(value.filter((m) => m !== muscle))
+      onChange(value.filter((m) => m !== muscle));
     }
-  }
+  };
 
   return (
     <div className={className}>
@@ -92,5 +92,5 @@ export function SecondaryMuscleGroupSelector({
         </div>
       )}
     </div>
-  )
+  );
 }

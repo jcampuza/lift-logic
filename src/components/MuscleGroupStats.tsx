@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+import { useQuery } from '@tanstack/react-query';
+import { convexQuery } from '@convex-dev/react-query';
+import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 
 interface MuscleGroupStatsProps {
-  workoutId: Id<'workouts'>
-  variant?: 'compact' | 'full'
-  className?: string
+  workoutId: Id<'workouts'>;
+  variant?: 'compact' | 'full';
+  className?: string;
 }
 
 export function MuscleGroupStats({
@@ -18,14 +18,14 @@ export function MuscleGroupStats({
 }: MuscleGroupStatsProps) {
   const { data: analytics } = useQuery(
     convexQuery(api.workouts.getWorkoutAnalytics, { workoutId }),
-  )
+  );
 
   if (!analytics) {
     return (
       <div className={`${className} opacity-60`}>
         <div className="text-xs">Loading muscle groups...</div>
       </div>
-    )
+    );
   }
 
   if (analytics.muscleGroups.length === 0) {
@@ -33,7 +33,7 @@ export function MuscleGroupStats({
       <div className={`${className} opacity-60`}>
         <div className="text-xs">No muscle groups tracked</div>
       </div>
-    )
+    );
   }
 
   if (variant === 'compact') {
@@ -42,7 +42,9 @@ export function MuscleGroupStats({
       <div className={`${className} flex gap-2 flex-wrap`}>
         {analytics.muscleGroups.map((group) => {
           const displaySets =
-            group.sets % 1 === 0 ? group.sets.toString() : group.sets.toFixed(1)
+            group.sets % 1 === 0
+              ? group.sets.toString()
+              : group.sets.toFixed(1);
 
           return (
             <span
@@ -51,10 +53,10 @@ export function MuscleGroupStats({
             >
               {group.name} {displaySets}
             </span>
-          )
+          );
         })}
       </div>
-    )
+    );
   }
 
   // Full view for workout detail page
@@ -64,8 +66,10 @@ export function MuscleGroupStats({
       <div className="grid grid-cols-2 gap-2">
         {analytics.muscleGroups.map((group) => {
           const displaySets =
-            group.sets % 1 === 0 ? group.sets.toString() : group.sets.toFixed(1)
-          const isPlural = group.sets !== 1
+            group.sets % 1 === 0
+              ? group.sets.toString()
+              : group.sets.toFixed(1);
+          const isPlural = group.sets !== 1;
 
           return (
             <div
@@ -77,11 +81,11 @@ export function MuscleGroupStats({
                 {displaySets} set{isPlural ? 's' : ''}
               </span>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
-export default MuscleGroupStats
+export default MuscleGroupStats;

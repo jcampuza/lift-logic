@@ -1,17 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from '../../../../convex/_generated/api'
-import WorkoutContent from '../../../components/WorkoutContent'
-import WorkoutDetailSkeleton from '../../../components/WorkoutDetailSkeleton'
-import type { Id } from 'convex/_generated/dataModel'
+import { createFileRoute } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { convexQuery } from '@convex-dev/react-query';
+import { api } from '../../../../convex/_generated/api';
+import WorkoutContent from '../../../components/WorkoutContent';
+import WorkoutDetailSkeleton from '../../../components/WorkoutDetailSkeleton';
+import type { Id } from 'convex/_generated/dataModel';
 
 export const Route = createFileRoute('/_auth/workouts/$workoutId')({
   component: WorkoutDetail,
-})
+});
 
 function WorkoutDetail() {
-  const { workoutId } = Route.useParams()
+  const { workoutId } = Route.useParams();
 
   const {
     data: workout,
@@ -20,10 +20,10 @@ function WorkoutDetail() {
     isSuccess,
   } = useQuery(
     convexQuery(api.workouts.getWorkout, { id: workoutId as Id<'workouts'> }),
-  )
+  );
 
   if (isPending) {
-    return <WorkoutDetailSkeleton />
+    return <WorkoutDetailSkeleton />;
   }
 
   if (isError) {
@@ -33,13 +33,13 @@ function WorkoutDetail() {
           Workout not available. Redirecting...
         </div>
       </div>
-    )
+    );
   }
 
   if (!isSuccess || !workout) {
-    return <WorkoutDetailSkeleton />
+    return <WorkoutDetailSkeleton />;
   }
 
   // Pass initial workout data to content component
-  return <WorkoutContent initialWorkout={workout} />
+  return <WorkoutContent initialWorkout={workout} />;
 }

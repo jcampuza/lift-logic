@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { useMutation } from 'convex/react'
-import { useState } from 'react'
+import { useMutation } from 'convex/react';
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,21 +12,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { api } from '../../convex/_generated/api'
-import type { Id } from '../../convex/_generated/dataModel'
+} from '@/components/ui/alert-dialog';
+import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 
 export function DeleteWorkoutDialog({
   workoutId,
   onDeleted,
   children,
 }: {
-  workoutId: Id<'workouts'>
-  onDeleted?: () => void
-  children: React.ReactNode
+  workoutId: Id<'workouts'>;
+  onDeleted?: () => void;
+  children: React.ReactNode;
 }) {
-  const deleteWorkout = useMutation(api.workouts.deleteWorkout)
-  const [submitting, setSubmitting] = useState(false)
+  const deleteWorkout = useMutation(api.workouts.deleteWorkout);
+  const [submitting, setSubmitting] = useState(false);
 
   return (
     <AlertDialog>
@@ -46,11 +46,11 @@ export function DeleteWorkoutDialog({
             disabled={submitting}
             onClick={async () => {
               try {
-                setSubmitting(true)
-                await deleteWorkout({ id: workoutId })
-                onDeleted?.()
+                setSubmitting(true);
+                await deleteWorkout({ id: workoutId });
+                onDeleted?.();
               } finally {
-                setSubmitting(false)
+                setSubmitting(false);
               }
             }}
           >
@@ -59,7 +59,7 @@ export function DeleteWorkoutDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
-export default DeleteWorkoutDialog
+export default DeleteWorkoutDialog;
