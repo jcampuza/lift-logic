@@ -2,7 +2,7 @@ import { getAuthUserId } from '@convex-dev/auth/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
-import { MUSCLE_GROUP_MAPPING } from '../src/lib/muscleGroups';
+import { MUSCLE_GROUP_MAPPING } from '../lib/muscleGroups';
 
 export const listWorkouts = query({
   args: {},
@@ -33,7 +33,10 @@ export const listWorkouts = query({
   ),
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) return [];
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
     const workouts = await ctx.db
       .query('workouts')
       .withIndex('by_user_and_date', (q) => q.eq('userId', userId))

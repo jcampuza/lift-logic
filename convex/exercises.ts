@@ -26,17 +26,19 @@ export const searchExercises = query({
     const userId = await getAuthUserId(ctx);
     const q = (args.q ?? '').trim();
 
+    console.log({ q });
     if (q === '') {
       const globals = await ctx.db
         .query('globalExercises')
         .order('asc')
-        .take(20);
+        .collect();
+
       const users = userId
         ? await ctx.db
             .query('userExercises')
             .withIndex('by_user_and_name', (ix) => ix.eq('userId', userId))
             .order('asc')
-            .take(20)
+            .collect()
         : [];
 
       const mappedGlobals = globals.map((g) => ({
@@ -54,7 +56,7 @@ export const searchExercises = query({
 
       const combined = [...mappedGlobals, ...mappedUsers];
       combined.sort((a, b) => a.name.localeCompare(b.name));
-      return combined.slice(0, 20);
+      return combined;
     }
 
     const [globals, users] = await Promise.all([
