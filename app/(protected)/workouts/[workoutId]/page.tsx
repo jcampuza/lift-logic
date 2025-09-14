@@ -8,6 +8,8 @@ import { api } from '@/convex/_generated/api';
 import WorkoutContent from 'components/WorkoutContent';
 import WorkoutDetailSkeleton from 'components/WorkoutDetailSkeleton';
 
+export const revalidate = 86400;
+
 export default function WorkoutDetailPage() {
   const { workoutId } = useParams();
 
