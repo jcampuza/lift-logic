@@ -9,9 +9,12 @@ import {
   ChevronUpIcon,
   EditIcon,
   ClockIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
 } from 'lucide-react';
 import { api } from '../convex/_generated/api';
 import type { Id } from '../convex/_generated/dataModel';
+import DeleteSetDialog from './DeleteSetDialog';
 
 export type ExerciseRef =
   | { kind: 'global'; id: Id<'globalExercises'> }
@@ -35,12 +38,20 @@ export function ExerciseEditor({
   onDelete,
   isEditing = true,
   currentWorkoutId,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: {
   value: WorkoutItemDraft;
   onChange: (v: WorkoutItemDraft) => void;
   onDelete: () => void;
   isEditing?: boolean;
   currentWorkoutId?: Id<'workouts'>;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }) {
   const { data: preferences } = useQuery(
     convexQuery(api.exercises.getUserPreferences, {}),
@@ -81,6 +92,8 @@ export function ExerciseEditor({
     );
     onChange({ ...value, sets: newSets });
   };
+
+  // Confirmation handled by DeleteSetDialog
 
   const removeSet = (i: number) => {
     onChange({ ...value, sets: value.sets.filter((_, idx) => idx !== i) });
@@ -145,11 +158,33 @@ export function ExerciseEditor({
           )}
         </div>
         {isEditing && (
-          <ExerciseDropdown
-            onDelete={onDelete}
-            onClearExercise={() => onChange({ ...value, sets: [], notes: '' })}
-            showClearOption={true}
-          />
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onMoveUp}
+              disabled={!canMoveUp}
+              title="Move up"
+              className="p-1 rounded-md transition-colors hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ArrowUpIcon className="size-4" />
+              <span className="sr-only">Move up</span>
+            </button>
+            <button
+              onClick={onMoveDown}
+              disabled={!canMoveDown}
+              title="Move down"
+              className="p-1 rounded-md transition-colors hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ArrowDownIcon className="size-4" />
+              <span className="sr-only">Move down</span>
+            </button>
+            <ExerciseDropdown
+              onDelete={onDelete}
+              onClearExercise={() =>
+                onChange({ ...value, sets: [], notes: '' })
+              }
+              showClearOption={true}
+            />
+          </div>
         )}
       </div>
 
@@ -207,14 +242,19 @@ export function ExerciseEditor({
                 />
                 <span className="text-xs opacity-70">reps</span>
                 {isEditing && (
-                  <button
-                    className="ml-auto p-1 opacity-70 hover:opacity-100 transition-opacity"
-                    onClick={() => removeSet(i)}
-                    title="Remove set"
+                  <DeleteSetDialog
+                    onConfirm={() => {
+                      removeSet(i);
+                    }}
                   >
-                    <XIcon className="size-4" />
-                    <span className="sr-only">Remove set</span>
-                  </button>
+                    <button
+                      className="ml-auto p-1 opacity-70 hover:opacity-100 transition-opacity"
+                      title="Remove set"
+                    >
+                      <XIcon className="size-4" />
+                      <span className="sr-only">Remove set</span>
+                    </button>
+                  </DeleteSetDialog>
                 )}
               </div>
             ))}

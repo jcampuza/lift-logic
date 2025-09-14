@@ -16,6 +16,7 @@ import type {
 import type * as auth from "../auth.js";
 import type * as exercisePresets from "../exercisePresets.js";
 import type * as exercises from "../exercises.js";
+import type * as feedback from "../feedback.js";
 import type * as http from "../http.js";
 import type * as workouts from "../workouts.js";
 
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   exercisePresets: typeof exercisePresets;
   exercises: typeof exercises;
+  feedback: typeof feedback;
   http: typeof http;
   workouts: typeof workouts;
 }>;

@@ -2,6 +2,7 @@
 
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import DeleteWorkoutDialog from 'components/DeleteWorkoutDialog';
+import LeaveFeedbackDialog from 'components/LeaveFeedbackDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +46,11 @@ export function WorkoutDropdown({
           e.stopPropagation();
         }}
       >
+        <LeaveFeedbackDialog workoutId={workoutId}>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            Leave feedback
+          </DropdownMenuItem>
+        </LeaveFeedbackDialog>
         <DeleteWorkoutDialog workoutId={workoutId} onDeleted={onDeleted}>
           <DropdownMenuItem
             variant="destructive"

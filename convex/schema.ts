@@ -71,4 +71,28 @@ export default defineSchema({
   })
     .index('by_user_and_date', ['userId', 'date'])
     .index('by_user_and_updatedAt', ['userId', 'updatedAt']),
+
+  // User feedback submissions
+  feedback: defineTable({
+    userId: v.id('users'),
+    content: v.string(),
+    // Optional short subject/title
+    subject: v.optional(v.string()),
+    // Optional rough location or route where feedback was initiated (e.g., "settings", "workout_dropdown")
+    route: v.optional(v.string()),
+    // Optional contextual references
+    workoutId: v.optional(v.id('workouts')),
+    exercise: v.optional(
+      v.union(
+        v.object({ kind: v.literal('global'), id: v.id('globalExercises') }),
+        v.object({ kind: v.literal('user'), id: v.id('userExercises') }),
+      ),
+    ),
+    // Optional client metadata to help debugging
+    userAgent: v.optional(v.string()),
+    appVersion: v.optional(v.string()),
+  })
+    .index('by_user', ['userId'])
+    .index('by_route', ['route'])
+    .index('by_workout', ['workoutId']),
 });

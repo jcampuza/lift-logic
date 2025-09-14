@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { GoogleLogo } from 'components/GoogleLogo';
 import { Button } from 'components/ui/button';
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 type SignInState = 'idle' | 'loading' | 'error';
 
@@ -32,7 +33,9 @@ export default function SignInPage() {
         <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
           <div className="flex justify-center mb-8">
             <div className="relative w-20 h-20">
-              <img
+              <Image
+                width={80}
+                height={80}
                 src="/logo.webp"
                 alt="Workout Companion Logo"
                 className="w-full h-full object-contain"

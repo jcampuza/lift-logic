@@ -161,6 +161,28 @@ export default function WorkoutContent({
     syncStateWithConvex(newNotes, items);
   };
 
+  const moveExercise = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (toIndex < 0 || toIndex >= items.length || fromIndex === toIndex) {
+        return;
+      }
+      const newItems = [...items];
+      const [moved] = newItems.splice(fromIndex, 1);
+      newItems.splice(toIndex, 0, moved);
+      setItems(newItems);
+      syncStateWithConvex(notes, newItems);
+    },
+    [items, notes, syncStateWithConvex],
+  );
+
+  const handleMoveUp = (index: number) => {
+    moveExercise(index, index - 1);
+  };
+
+  const handleMoveDown = (index: number) => {
+    moveExercise(index, index + 1);
+  };
+
   const retrySync = () => {
     // Use current state values and trigger immediate sync
     singleFlightSync(notes, items).catch(() => {
@@ -225,6 +247,12 @@ export default function WorkoutContent({
                 onDelete={() => handleExerciseDelete(idx)}
                 isEditing={true}
                 currentWorkoutId={initialWorkout._id}
+                onMoveUp={idx > 0 ? () => handleMoveUp(idx) : undefined}
+                onMoveDown={
+                  idx < items.length - 1 ? () => handleMoveDown(idx) : undefined
+                }
+                canMoveUp={idx > 0}
+                canMoveDown={idx < items.length - 1}
               />
             ))}
           </div>
