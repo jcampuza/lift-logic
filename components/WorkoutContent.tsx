@@ -1,5 +1,4 @@
 import { ArrowLeftIcon } from 'lucide-react';
-import { useMutation } from 'convex/react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import AddExerciseDialog from './AddExerciseDialog';

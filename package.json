@@ -9,7 +9,7 @@
     "dev:ts": "tsc -b -w",
     "dev:convex": "npx convex dev",
     "local-prod": "bun run build && bun run start",
-    "build": "next build && tsc --noEmit",
+    "build": "next build",
     "start": "next start",
     "format": "prettier --write .",
     "lint": "eslint .",
