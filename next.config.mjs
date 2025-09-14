@@ -4,6 +4,9 @@ const nextConfig = {
   typedRoutes: true,
   experimental: {
     reactCompiler: true,
+    staleTimes: {
+      dynamic: 300,
+    },
   },
 };
 
