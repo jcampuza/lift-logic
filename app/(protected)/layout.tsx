@@ -1,5 +1,10 @@
+'use client';
+
 import { SettingsLink } from '@/components/SettingsLink';
+import { Authenticated, AuthLoading, Unauthenticated } from 'convex/react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import RedirectToSignIn from '@/components/RedirectToSignIn';
 
 export default function ProtectedLayout({
   children,
@@ -18,7 +23,17 @@ export default function ProtectedLayout({
         <SettingsLink />
       </header>
 
-      {children}
+      <Authenticated>{children}</Authenticated>
+
+      <Unauthenticated>
+        <RedirectToSignIn />
+      </Unauthenticated>
+
+      <AuthLoading>
+        <div className="flex justify-center items-center p-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AuthLoading>
     </>
   );
 }

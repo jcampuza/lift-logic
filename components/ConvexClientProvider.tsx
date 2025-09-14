@@ -1,10 +1,10 @@
 'use client';
 
 import { ConvexReactClient } from 'convex/react';
-import { ConvexAuthNextjsProvider } from '@convex-dev/auth/nextjs';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConvexQueryClient } from '@convex-dev/react-query';
+import { ConvexAuthProvider } from '@convex-dev/auth/react';
 
 interface ClientSet {
   convexClient: ConvexReactClient;
@@ -62,9 +62,9 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={clients.queryClient}>
-      <ConvexAuthNextjsProvider client={clients.convexClient}>
+      <ConvexAuthProvider client={clients.convexClient}>
         {children}
-      </ConvexAuthNextjsProvider>
+      </ConvexAuthProvider>
     </QueryClientProvider>
   );
 }
