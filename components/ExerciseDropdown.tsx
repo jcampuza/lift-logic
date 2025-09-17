@@ -11,6 +11,7 @@ import {
 interface ExerciseDropdownProps {
   onDelete: () => void;
   onClearExercise?: () => void;
+  onSwapExercise?: () => void;
   align?: 'start' | 'center' | 'end';
   showClearOption?: boolean;
 }
@@ -18,6 +19,7 @@ interface ExerciseDropdownProps {
 export function ExerciseDropdown({
   onDelete,
   onClearExercise,
+  onSwapExercise,
   align = 'end',
   showClearOption = false,
 }: ExerciseDropdownProps) {
@@ -45,6 +47,11 @@ export function ExerciseDropdown({
         {showClearOption && onClearExercise && (
           <DropdownMenuItem onSelect={onClearExercise}>
             Clear sets & notes
+          </DropdownMenuItem>
+        )}
+        {onSwapExercise && (
+          <DropdownMenuItem onSelect={onSwapExercise}>
+            Swap exercise
           </DropdownMenuItem>
         )}
         <DropdownMenuItem variant="destructive" onSelect={onDelete}>

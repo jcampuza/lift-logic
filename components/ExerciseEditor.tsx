@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import { useState } from 'react';
 import ExerciseDropdown from './ExerciseDropdown';
+import AddExerciseDialog from './AddExerciseDialog';
 import { NumericInput } from './ui/numeric-input';
 import {
   XIcon,
@@ -69,6 +70,7 @@ export function ExerciseEditor({
   // Start expanded by default
   const [isExpanded, setIsExpanded] = useState(true);
   const [showNotes, setShowNotes] = useState(value.notes.trim() !== '');
+  const [showSwapDialog, setShowSwapDialog] = useState(false);
 
   const addSet = () => {
     const lastSet = value.sets[value.sets.length - 1];
@@ -182,6 +184,7 @@ export function ExerciseEditor({
               onClearExercise={() =>
                 onChange({ ...value, sets: [], notes: '' })
               }
+              onSwapExercise={() => setShowSwapDialog(true)}
               showClearOption={true}
             />
           </div>
@@ -300,6 +303,20 @@ export function ExerciseEditor({
             )}
           </div>
         </div>
+      )}
+      {isEditing && (
+        <AddExerciseDialog
+          open={showSwapDialog}
+          onOpenChange={setShowSwapDialog}
+          title="Swap Exercise"
+          onExerciseSelected={(exercise, exerciseData) => {
+            onChange({
+              ...value,
+              exercise,
+              exerciseData,
+            });
+          }}
+        />
       )}
     </div>
   );

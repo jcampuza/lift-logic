@@ -25,12 +25,14 @@ interface AddExerciseDialogProps {
     exercise: ExerciseRef,
     exerciseData: { name: string; primaryMuscle?: string },
   ) => void;
+  title?: string;
 }
 
 export function AddExerciseDialog({
   open,
   onOpenChange,
   onExerciseSelected,
+  title = 'Add Exercise',
 }: AddExerciseDialogProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { query: q, setQuery: setQ, exercises: results } = useExerciseSearch();
@@ -82,7 +84,7 @@ export function AddExerciseDialog({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Add Exercise</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         {!showCreateForm ? (

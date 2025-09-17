@@ -3,6 +3,7 @@ import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
 import { internalMutation, mutation, query } from './_generated/server';
 import { GLOBAL_EXERCISE_PRESETS_v2 } from './exercisePresets';
+import { formatExerciseName } from '../lib/format';
 
 export const searchExercises = query({
   args: { q: v.optional(v.string()) },
@@ -182,7 +183,7 @@ export const createUserExercise = mutation({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error('Not authenticated');
 
-    const trimmedName = args.name.trim();
+    const trimmedName = formatExerciseName(args.name);
     const trimmedPrimary = args.primaryMuscle.trim();
     const secondary = args.secondaryMuscles
       .map((s) => s.trim())
@@ -341,7 +342,7 @@ export const updateUserExercise = mutation({
       throw new Error('Exercise not found or unauthorized');
     }
 
-    const trimmedName = args.name.trim();
+    const trimmedName = formatExerciseName(args.name);
     const trimmedPrimary = args.primaryMuscle.trim();
     const secondary = args.secondaryMuscles
       .map((s) => s.trim())

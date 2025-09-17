@@ -8,6 +8,7 @@ import {
   PrimaryMuscleGroupSelector,
   SecondaryMuscleGroupSelector,
 } from './MuscleGroupSelector';
+import { formatExerciseName } from 'lib/format';
 
 export type CreateExerciseResult = Id<'userExercises'>;
 
@@ -111,6 +112,7 @@ export function CreateUserExercise({
                 setStatus('Please provide name and primary muscle.');
                 return;
               }
+              const formattedName = formatExerciseName(trimmedName);
               setSubmitting(true);
               try {
                 const aliasesArr = aliases
@@ -121,24 +123,24 @@ export function CreateUserExercise({
                 if (mode === 'edit' && editData?._id) {
                   await updateUserExercise({
                     exerciseId: editData._id,
-                    name: trimmedName,
+                    name: formattedName,
                     primaryMuscle: primary,
                     secondaryMuscles: secondary,
                     aliases: aliasesArr.length ? aliasesArr : undefined,
                     notes: notes.trim() === '' ? undefined : notes.trim(),
                   });
                   setStatus('Exercise updated.');
-                  onUpdated?.(trimmedName);
+                  onUpdated?.(formattedName);
                 } else {
                   const id = await createUserExercise({
-                    name: trimmedName,
+                    name: formattedName,
                     primaryMuscle: primary,
                     secondaryMuscles: secondary,
                     aliases: aliasesArr.length ? aliasesArr : undefined,
                     notes: notes.trim() === '' ? undefined : notes.trim(),
                   });
                   setStatus('Exercise added.');
-                  onCreated?.(id, trimmedName);
+                  onCreated?.(id, formattedName);
                   if (mode === 'create') {
                     setName('');
                     setPrimary('');
