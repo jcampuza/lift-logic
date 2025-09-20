@@ -8,6 +8,9 @@
 - **Format**: `bun run format` (Prettier)
 - **TypeScript watch**: `bun run dev:ts`
 
+Please never run the full dev/build commands when editing files. The developer will be responsible for this.
+You may run typechecking, linting, and tests.
+
 ## Testing
 
 No test framework currently configured. Use Vitest if adding tests.

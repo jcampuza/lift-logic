@@ -13,6 +13,7 @@ export default defineSchema({
     userId: v.id('users'),
     weightUnit: v.union(v.literal('lbs'), v.literal('kg')),
     includeHalfSets: v.optional(v.boolean()),
+    muscleGroupsCollapsed: v.optional(v.boolean()),
     // Future preferences can be added here
   }).index('by_user', ['userId']),
 

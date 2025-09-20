@@ -40,9 +40,14 @@ export function UserPreferences() {
 
   const weightUnit = data?.weightUnit ?? '';
   const includeHalfSets = data?.includeHalfSets ?? true;
+  const muscleGroupsCollapsed = data?.muscleGroupsCollapsed ?? false;
 
   const handleIncludeHalfSetsChange = async (value: boolean) => {
     updatePreferences.mutate({ includeHalfSets: value });
+  };
+
+  const handleMuscleGroupsCollapsedChange = async (value: boolean) => {
+    updatePreferences.mutate({ muscleGroupsCollapsed: value });
   };
 
   if (isLoading) {
@@ -99,6 +104,22 @@ export function UserPreferences() {
           />
           <span className="text-xs opacity-70">
             When enabled, secondary muscles contribute 0.5 sets to analytics.
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium opacity-90 block mb-2">
+          Collapse muscle groups by default
+        </label>
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={muscleGroupsCollapsed}
+            onCheckedChange={handleMuscleGroupsCollapsedChange}
+          />
+          <span className="text-xs opacity-70">
+            When enabled, muscle groups section will be collapsed by default in
+            workout details.
           </span>
         </div>
       </div>

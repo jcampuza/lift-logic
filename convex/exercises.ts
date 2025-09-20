@@ -304,6 +304,7 @@ export const getUserPreferences = query({
   returns: v.object({
     weightUnit: v.union(v.literal('lbs'), v.literal('kg')),
     includeHalfSets: v.boolean(),
+    muscleGroupsCollapsed: v.boolean(),
   }),
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
@@ -314,10 +315,11 @@ export const getUserPreferences = query({
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .first();
 
-    // Default to lbs and includeHalfSets=true if no preferences exist
+    // Default to lbs, includeHalfSets=true, and muscleGroupsCollapsed=false if no preferences exist
     return {
       weightUnit: preferences?.weightUnit ?? 'lbs',
       includeHalfSets: preferences?.includeHalfSets ?? true,
+      muscleGroupsCollapsed: preferences?.muscleGroupsCollapsed ?? false,
     };
   },
 });
@@ -400,6 +402,7 @@ export const updateUserPreferences = mutation({
   args: {
     weightUnit: v.optional(v.union(v.literal('lbs'), v.literal('kg'))),
     includeHalfSets: v.optional(v.boolean()),
+    muscleGroupsCollapsed: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -415,6 +418,8 @@ export const updateUserPreferences = mutation({
       weightUnit: args.weightUnit ?? existing?.weightUnit ?? 'lbs',
       includeHalfSets:
         args.includeHalfSets ?? existing?.includeHalfSets ?? true,
+      muscleGroupsCollapsed:
+        args.muscleGroupsCollapsed ?? existing?.muscleGroupsCollapsed ?? false,
     };
 
     if (existing) {
