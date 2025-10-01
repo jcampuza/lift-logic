@@ -193,6 +193,30 @@ export const updateWorkout = mutation({
   },
 });
 
+// Update only the workout date
+export const updateWorkoutDate = mutation({
+  args: {
+    id: v.id('workouts'),
+    date: v.number(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error('Not authenticated');
+
+    const existingWorkout = await ctx.db.get(args.id);
+    if (!existingWorkout) throw new Error('Workout not found');
+    if (existingWorkout.userId !== userId) throw new Error('Unauthorized');
+
+    await ctx.db.patch(args.id, {
+      date: args.date,
+      updatedAt: Date.now(),
+    });
+
+    return null;
+  },
+});
+
 export const deleteWorkout = mutation({
   args: { id: v.id('workouts') },
   returns: v.null(),

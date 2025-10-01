@@ -1,4 +1,4 @@
-import { ArrowLeftIcon } from 'lucide-react';
+import { ArrowLeftIcon, CalendarIcon, PencilIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import AddExerciseDialog from './AddExerciseDialog';
@@ -14,6 +14,9 @@ import ExerciseEditor, {
 } from './ExerciseEditor';
 import type { Id } from '../convex/_generated/dataModel';
 import { useConvexReactQueryMutation } from '@/hooks/useConvexReactQueryMutation';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { Button } from './ui/button';
 
 type LocalWorkoutItemDraft = WorkoutItemDraft;
 
@@ -49,6 +52,7 @@ export default function WorkoutContent({
 }: WorkoutContentProps) {
   // Local state initialized once from server data
   const [notes, setNotes] = useState(initialWorkout.notes ?? '');
+  const [date, setDate] = useState<number>(initialWorkout.date);
   const [items, setItems] = useState<Array<LocalWorkoutItemDraft>>(
     initialWorkout.items.map((item) => ({
       exercise: item.exercise,
@@ -91,6 +95,26 @@ export default function WorkoutContent({
     },
   );
 
+  const updateWorkoutDate = useConvexReactQueryMutation(
+    api.workouts.updateWorkoutDate,
+    {
+      onSuccess: () => {
+        setSyncStatus((prev) => ({
+          ...prev,
+          isSyncing: false,
+          lastSynced: Date.now(),
+          error: null,
+        }));
+      },
+      onMutate: () => {
+        setSyncStatus((prev) => ({ ...prev, isSyncing: true, error: null }));
+      },
+      onError: () => {
+        setSyncStatus((prev) => ({ ...prev, isSyncing: false, error: 'Sync failed' }));
+      },
+    },
+  );
+
   // Single flight sync function
   const performSync = useCallback(
     async (
@@ -99,7 +123,7 @@ export default function WorkoutContent({
     ): Promise<void> => {
       const payload = {
         id: initialWorkout._id,
-        date: initialWorkout.date,
+        date: date,
         notes: syncNotes.trim() === '' ? undefined : syncNotes.trim(),
         items: syncItems
           .filter((it) => it.exercise !== null)
@@ -112,7 +136,7 @@ export default function WorkoutContent({
 
       updateWorkout.mutate(payload);
     },
-    [initialWorkout._id, initialWorkout.date, updateWorkout],
+    [initialWorkout._id, date, updateWorkout],
   );
 
   // Wrap with single flight to prevent concurrent saves
@@ -213,9 +237,37 @@ export default function WorkoutContent({
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">
-              {new Date(initialWorkout.date).toLocaleDateString()}
-            </p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 px-2 text-sm text-muted-foreground">
+                  <CalendarIcon className="w-4 h-4 mr-1" />
+                  {new Date(date).toLocaleDateString()}
+                  <PencilIcon className="w-3.5 h-3.5 ml-2 opacity-60" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <div className="p-3">
+                  <Calendar
+                    mode="single"
+                    selected={new Date(date)}
+                    onSelect={(d) => {
+                      if (!d) return;
+                      const newDate = new Date(
+                        d.getFullYear(),
+                        d.getMonth(),
+                        d.getDate(),
+                        12,
+                        0,
+                        0,
+                        0,
+                      ).getTime();
+                      setDate(newDate);
+                      updateWorkoutDate.mutate({ id: initialWorkout._id, date: newDate });
+                    }}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
             {items.length > 0 && (
               <>
                 <span className="text-xs opacity-60">•</span>
