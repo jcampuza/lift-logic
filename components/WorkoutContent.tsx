@@ -1,10 +1,11 @@
-import { ArrowLeftIcon } from 'lucide-react';
+import { ArrowLeftIcon, EditIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import AddExerciseDialog from './AddExerciseDialog';
 import AddExerciseFab from './AddExerciseFab';
 import MuscleGroupStats from './MuscleGroupStats';
 import WorkoutDropdown from './WorkoutDropdown';
+import EditWorkoutDateDialog from './EditWorkoutDateDialog';
 import useSingleFlight from '../hooks/useSingleFlight';
 import useDebounce from '../hooks/useDebounce';
 import { api } from '../convex/_generated/api';
@@ -14,6 +15,7 @@ import ExerciseEditor, {
 } from './ExerciseEditor';
 import type { Id } from '../convex/_generated/dataModel';
 import { useConvexReactQueryMutation } from '@/hooks/useConvexReactQueryMutation';
+import { Button } from '@/components/ui/button';
 
 type LocalWorkoutItemDraft = WorkoutItemDraft;
 
@@ -58,6 +60,7 @@ export default function WorkoutContent({
     })),
   );
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDateDialog, setShowEditDateDialog] = useState(false);
 
   // Sync status state
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
@@ -213,9 +216,19 @@ export default function WorkoutContent({
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">
-              {new Date(initialWorkout.date).toLocaleDateString()}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">
+                {new Date(initialWorkout.date).toLocaleDateString()}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 hover:bg-muted"
+                onClick={() => setShowEditDateDialog(true)}
+              >
+                <EditIcon className="h-3 w-3" />
+              </Button>
+            </div>
             {items.length > 0 && (
               <>
                 <span className="text-xs opacity-60">•</span>
@@ -273,6 +286,13 @@ export default function WorkoutContent({
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onExerciseSelected={handleExerciseSelected}
+      />
+
+      <EditWorkoutDateDialog
+        open={showEditDateDialog}
+        onOpenChange={setShowEditDateDialog}
+        workoutId={initialWorkout._id}
+        currentDate={initialWorkout.date}
       />
 
       <AddExerciseFab onAddExercise={() => setShowAddDialog(true)} />
