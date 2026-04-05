@@ -1,16 +1,16 @@
 .next
-next-env.d.ts
 dist
 node_modules
 package-lock.json
 yarn.lock
 
-!.env
-.env
-.env.local
+# env files
+.env*
+
 .DS_Store
 .cache
 .vercel
+.wrangler
 .output
 .vinxi
 .nitro

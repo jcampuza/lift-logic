@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import MuscleGroupStats from './MuscleGroupStats';
 import WorkoutDropdown from './WorkoutDropdown';
 import type { Id } from '../convex/_generated/dataModel';
@@ -32,7 +32,11 @@ export default function WorkoutListItem({
   );
 
   return (
-    <Link href={`/workouts/${workout._id}`} className="block">
+    <Link
+      to="/workouts/$workoutId"
+      params={{ workoutId: workout._id }}
+      className="block"
+    >
       <div className="rounded-lg border border-border bg-card p-3 hover:bg-primary/5 transition-colors cursor-pointer">
         <div className="flex justify-between items-center">
           <div className="flex flex-col">

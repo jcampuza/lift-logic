@@ -5,11 +5,19 @@
 - **Development**: `bun run dev` (runs Convex dev + web concurrently)
 - **Web dev only**: `bun run dev:web`
 - **Build**: `bun run build` (includes TypeScript check)
+- **Start**: `bun run start` (runs production build)
 - **Format**: `bun run format` (Prettier)
 - **TypeScript watch**: `bun run dev:ts`
 
 Please never run the full dev/build commands when editing files. The developer will be responsible for this.
 You may run typechecking, linting, and tests.
+
+## Framework Stack
+
+- **Framework**: TanStack Start (Vite + TanStack Router)
+- **Router**: TanStack Router (file-based routing in `src/app/`)
+- **Styling**: Tailwind CSS v4 (via @tailwindcss/vite)
+- **Database**: Convex with React Query integration
 
 ## Testing
 
@@ -55,12 +63,21 @@ if (isUserLoggedIn) // doSomething
 - **Loading states**: Always implement skeleton loaders where possible instead of basic loading text
 - **Error handling**: Properly handle error states from query hooks
 
+### TanStack Router
+
+- **Link**: Use `import { Link } from '@tanstack/react-router'` for navigation
+- **Navigation**: Use `useNavigate()` for programmatic navigation
+- **Route params**: Use `Route.useParams()` to access route parameters
+- **Location**: Use `useLocation()` to access pathname and search string
+- **Search params**: Parse `location.searchStr` with `new URLSearchParams()`
+
 ### Naming Conventions
 
 - **Components**: PascalCase (e.g., `AddExerciseDialog`)
 - **Hooks**: camelCase with `use` prefix (e.g., `useExerciseSearch`)
 - **Files**: PascalCase for components, camelCase for utilities
 - **Variables**: camelCase, descriptive names
+- **Routes**: Use file-based routing with `$param` for dynamic segments
 
 ### Error Handling
 

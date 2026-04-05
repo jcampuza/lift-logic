@@ -1,13 +1,11 @@
-'use client';
-
 import { Authenticated } from 'convex/react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 
 export function SettingsLink() {
   return (
     <Authenticated>
       <Link
-        href="/settings"
+        to="/settings"
         className="inline-flex items-center rounded-md px-2 py-1 hover:bg-muted transition-colors"
         aria-label="Settings"
         title="Settings"

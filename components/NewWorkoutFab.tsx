@@ -1,7 +1,5 @@
-'use client';
-
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { api } from '../convex/_generated/api';
 import {
@@ -14,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useConvexReactQueryMutation } from '@/hooks/useConvexReactQueryMutation';
 
 export function NewWorkoutFab() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
 
@@ -23,7 +21,7 @@ export function NewWorkoutFab() {
     {
       onSuccess: (data) => {
         setOpen(false);
-        router.push(`/workouts/${data}`);
+        navigate({ to: `/workouts/${data}` });
       },
     },
   );
@@ -33,7 +31,7 @@ export function NewWorkoutFab() {
     {
       onSuccess: (data) => {
         setOpen(false);
-        router.push(`/workouts/${data}`);
+        navigate({ to: `/workouts/${data}` });
       },
     },
   );

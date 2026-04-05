@@ -1,20 +1,22 @@
-import { SignInButton } from '@/app/signin/SignInButton';
-import Image from 'next/image';
+import { createFileRoute } from '@tanstack/react-router';
+import { SignInButton } from '@/components/SignInButton';
 import { Suspense } from 'react';
 
-export default function SignInPage() {
+export const Route = createFileRoute('/signin')({
+  component: SignInPage,
+});
+
+function SignInPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
           <div className="flex justify-center mb-8">
             <div className="relative w-20 h-20">
-              <Image
-                width={80}
-                height={80}
+              <img
                 src="/logo.webp"
                 alt="Workout Companion Logo"
-                className="w-full h-full object-contain"
+                className="w-20 h-20 object-contain"
               />
             </div>
           </div>

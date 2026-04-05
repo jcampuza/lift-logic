@@ -3,12 +3,15 @@
 // characters as-is to avoid breaking acronyms like "PR" or units like "1RM".
 export function formatExerciseName(name: string): string {
   const trimmed = name.trim();
-  if (trimmed === '') return trimmed;
+  if (trimmed === '') {
+    return trimmed;
+  }
+
   // Uppercase letter at start of string or right after these separators
   // Space, tab, newline, hyphen, slash, parentheses, brackets, braces, colon,
   // comma, underscore, plus
   return trimmed.replace(
-    /(^|[\s\-\/()\[\]{}:,_+])([a-zA-Z])/g,
+    /(^|[\s/()[\]{}:,_+-])([a-zA-Z])/g,
     (_m, sep: string, c: string) => sep + c.toUpperCase(),
   );
 }
