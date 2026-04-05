@@ -1,21 +1,19 @@
-'use client';
-
 import { useAuthActions } from '@convex-dev/auth/react';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from './ui/button';
 
 export function SignOut() {
   const { signOut } = useAuthActions();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
       await signOut();
-      router.push('/signin');
+      navigate({ to: '/signin' });
     } catch (error) {
       console.error('Sign out error:', error);
       setIsSigningOut(false);

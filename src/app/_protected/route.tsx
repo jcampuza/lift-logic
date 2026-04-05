@@ -1,29 +1,31 @@
-'use client';
-
+import { createFileRoute } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { SettingsLink } from '@/components/SettingsLink';
 import { Authenticated, AuthLoading, Unauthenticated } from 'convex/react';
 import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
 import RedirectToSignIn from '@/components/RedirectToSignIn';
+import { Outlet } from '@tanstack/react-router';
 
-export default function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const Route = createFileRoute('/_protected')({
+  component: RouteComponent,
+});
+
+function RouteComponent() {
   return (
     <>
       <header className="sticky top-0 z-40 bg-background px-4 py-3 border-b border-border flex flex-row justify-between items-center">
         <Link
           className="rounded-md px-2 py-1 hover:bg-muted transition-colors"
-          href="/"
+          to="/"
         >
           Lift PR&apos;s
         </Link>
         <SettingsLink />
       </header>
 
-      <Authenticated>{children}</Authenticated>
+      <Authenticated>
+        <Outlet />
+      </Authenticated>
 
       <Unauthenticated>
         <RedirectToSignIn />

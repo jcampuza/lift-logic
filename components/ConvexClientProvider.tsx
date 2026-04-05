@@ -1,5 +1,3 @@
-'use client';
-
 import { ConvexReactClient } from 'convex/react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -15,10 +13,8 @@ interface ClientSet {
 let browserClients: ClientSet | undefined = undefined;
 
 function createClients(): ClientSet {
-  // Create the Convex client
-  const convexClient = new ConvexReactClient(
-    process.env.NEXT_PUBLIC_CONVEX_URL!,
-  );
+  // Create of Convex client
+  const convexClient = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL!);
 
   // Create the Convex Query client
   const convexQueryClient = new ConvexQueryClient(convexClient);

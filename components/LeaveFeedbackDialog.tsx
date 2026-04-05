@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../convex/_generated/api';
 import { useConvexReactQueryMutation } from '@/hooks/useConvexReactQueryMutation';
@@ -14,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { usePathname } from 'next/navigation';
+import { useLocation } from '@tanstack/react-router';
 
 export type ExerciseRef =
   | { kind: 'global'; id: Id<'globalExercises'> }
@@ -34,7 +32,7 @@ export function LeaveFeedbackDialog({
   const [open, setOpen] = useState<boolean>(defaultOpen ?? false);
   const [content, setContent] = useState('');
 
-  const pathname = usePathname();
+  const { pathname } = useLocation();
 
   const userAgent = useMemo(() => {
     if (typeof navigator !== 'undefined') return navigator.userAgent;

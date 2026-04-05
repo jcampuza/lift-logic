@@ -1,5 +1,5 @@
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { Skeleton } from './ui/skeleton';
 
 export function WorkoutDetailSkeleton() {
@@ -7,7 +7,7 @@ export function WorkoutDetailSkeleton() {
     <div className="p-4 pb-24 max-w-xl mx-auto opacity-0 animate-fade-in">
       <header className="flex items-center gap-4 mb-4">
         <Link
-          href="/"
+          to="/"
           className="p-2 rounded-md hover:bg-muted transition-colors"
         >
           <ArrowLeftIcon className="w-5 h-5" />

@@ -1,17 +1,15 @@
-'use client';
-
 import { Button } from 'components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useLocation } from '@tanstack/react-router';
 import { GoogleLogo } from 'components/GoogleLogo';
 
 type SignInState = 'idle' | 'loading' | 'error';
 
 export function SignInButton() {
   const { signIn } = useAuthActions();
-  const searchParams = useSearchParams();
+  const { searchStr } = useLocation();
 
   const [signInState, setSignInState] = useState<SignInState>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -21,7 +19,8 @@ export function SignInButton() {
     setErrorMessage('');
 
     try {
-      const redirectParam = searchParams.get('redirect') ?? undefined;
+      const params = new URLSearchParams(searchStr);
+      const redirectParam = params.get('redirect') ?? undefined;
       if (redirectParam) {
         await signIn('google', { redirectTo: redirectParam });
       } else {

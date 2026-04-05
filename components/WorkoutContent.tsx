@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, EditIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import AddExerciseDialog from './AddExerciseDialog';
 import AddExerciseFab from './AddExerciseFab';
@@ -198,7 +198,7 @@ export default function WorkoutContent({
       <header className="sticky top-0 z-[60] bg-background border-b border-border px-4 py-3 mb-4">
         <div className="flex items-center gap-4 mb-2">
           <Link
-            href="/"
+            to="/"
             className="p-2 rounded-md hover:bg-muted transition-colors"
           >
             <ArrowLeftIcon className="w-5 h-5" />

@@ -1,35 +1,30 @@
-'use client';
-
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Route } from 'next';
+import { useNavigate, Link, useLocation } from '@tanstack/react-router';
 
 export default function RedirectToSignIn() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const { pathname, searchStr } = useLocation();
 
   useEffect(() => {
-    const current =
-      pathname + (searchParams.size > 0 ? `?${searchParams.toString()}` : '');
-    const target = `/signin?redirect=${encodeURIComponent(current)}` as Route;
+    const current = pathname + (searchStr ? `?${searchStr}` : '');
+    const target = `/signin?redirect=${encodeURIComponent(current)}`;
     if (typeof window !== 'undefined') {
-      if (window.location.pathname + window.location.search !== target) {
-        router.replace(target);
+      const currentPath = window.location.pathname + window.location.search;
+      if (currentPath !== target) {
+        navigate({ to: target, replace: true });
       }
     }
-  }, [router, pathname, searchParams]);
+  }, [navigate, pathname, searchStr]);
+
+  const target = `/signin?redirect=${encodeURIComponent(
+    pathname + (searchStr ? `?${searchStr}` : ''),
+  )}`;
 
   return (
     <div className="flex flex-col items-center justify-center p-16 gap-3">
       <p className="text-sm text-muted-foreground">Redirecting to sign in…</p>
       <Link
-        href={`/signin?redirect=${encodeURIComponent(
-          pathname +
-            (searchParams.size > 0 ? `?${searchParams.toString()}` : ''),
-        )}`}
+        to={target}
         className="text-sm underline underline-offset-4 text-primary hover:text-primary/90"
       >
         Go to sign in
